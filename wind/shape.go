@@ -1,6 +1,72 @@
 package wind
 
 
+// double SNiP2_01_07_Schema12b_Ce1(double angle, double h1, double d, )
+// {
+//     if(angle == 0. ) return 1.0;
+//     if(angle < 0.  ) return SNiP2_01_07_Schema12b_Ce1(-angle                     ,h1,d,OUT);
+//     if(angle > 360.) return SNiP2_01_07_Schema12b_Ce1(angle - int(angle/360.)*360,h1,d,OUT);
+//     if(angle > 180.) return SNiP2_01_07_Schema12b_Ce1(180.-(angle-180.)          ,h1,d,OUT);
+//     double Otn[30] = {
+//         00.,    1.0,
+//         10.,    1.0,
+//         20.,    0.8,
+//         30.,    0.4,
+//         40.,    0.0,
+//         50.,    -0.6,
+//         60.,    -1.2,
+//         70.,    -1.3,
+//         80.,    -1.2,
+//         90.,    -1.0,
+//         100.,   -0.8,
+//         110.,   -0.4,
+//         120.,   -0.4,
+//         130.,   -0.4,
+//         180.1,   -0.4};
+// //    if(angle < Otn[00*2+0])return Otn[00*2+1];
+// //    if(angle > Otn[14*2+0])return Otn[14*2+1];
+//     type_LLU i;
+//     for(i=0;i<15;i++)
+//     {
+//         //if(angle == Otn[i*2+0]) return Otn[i*2 + 1];
+//         if(angle <  Otn[i*2+0]) break;
+//     }
+//     double Cbetta = LinearInter(Otn[i*2+1],Otn[i*2+0],Otn[(i-1)*2+1],Otn[(i-1)*2+0],angle);
+//     double k1     = SNiP2_01_07_Schema12b_K1(h1, d);
+//     if(Cbetta > 0) k1 = 1;
+//     double Ce1 = Cbetta * k1;
+//     return Ce1;
+// }
+//
+// double SNiP2_01_07_Schema12a_Re(double Diameter,double Wo, double Kz, )
+// {
+//     double Re = 0.88*Diameter*sqrt(Wo*Kz*1.4)*1e5;
+//     return Re;
+// }
+//
+// double SNiP2_01_07_Schema12b_K1(double h1, double d)
+// {
+//     double Otn[14]={
+//         0.2,    0.8,
+//         0.5,    0.9,
+//         1.0,    0.95,
+//         2.0,    1.0,
+//         5.0,    1.1,
+//         10.,    1.15,
+//         25.,    1.2
+//     };
+//     if(h1/d < Otn[0*2+0])return Otn[0*2+1];
+//     if(h1/d > Otn[6*2+0])return Otn[6*2+1];
+//     type_LLU i;
+//     for(i=0;i<7;i++)
+//     {
+//         if(h1/d == Otn[i*2+0]) return Otn[i*2 + 1];
+//         if(h1/d <  Otn[i*2+0]) break;
+//     }
+//     double k1 = LinearInter(Otn[i*2+1],Otn[i*2+0],Otn[(i-1)*2+1],Otn[(i-1)*2+0],h1/d);
+//     return k1;
+// }
+//
 //
 // double SNiP2_01_07_Cxema13_table1_K(double lambda, bool OUT = true)
 // {

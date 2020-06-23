@@ -100,9 +100,11 @@ func (ld LogDecriment) String() string {
 // TODO : add code name
 
 // EffectiveHeigth by par 11.1.5
-//	z - height from ground
-//	d - dimension of building (perpendicular)
-//	h - heigth of building
+//	z - height from ground / высота от поверхности земли
+//	d - dimension of building (perpendicular) / размер здания (без учета его
+//		стилобатной части) в направлении, перпендикулярном расчетному
+//		направлению ветра (поперечный размер).
+//	h - heigth of building / высота здания.
 func EffectiveHeigth(z, d, h float64, isTower bool) (ze float64) {
 	if isTower {
 		return z
@@ -217,122 +219,104 @@ func FactorXi(ld LogDecriment, ε float64) (ξ float64) {
 	panic("not implemented")
 }
 
+// TODO: add godoc for all function
+
+func FactoNu(ρ, χ float64) (ν float64) {
+	// table 11.6
+
+	const (
+		col = 7
+		row = 7
+	)
+
+	var (
+		header = [col]float64{5, 10, 20, 40, 80, 160, 350}
+		ro     = [row]float64{0.1, 5, 10, 20, 40, 80, 160}
+		data   = [row][col]float64{
+			[col]float64{0.95, 0.92, 0.88, 0.83, 0.76, 0.67, 0.56},
+			[col]float64{0.89, 0.87, 0.84, 0.80, 0.73, 0.65, 0.54},
+			[col]float64{0.85, 0.84, 0.81, 0.77, 0.71, 0.64, 0.53},
+			[col]float64{0.80, 0.78, 0.76, 0.73, 0.68, 0.61, 0.51},
+			[col]float64{0.72, 0.72, 0.70, 0.67, 0.63, 0.57, 0.48},
+			[col]float64{0.63, 0.63, 0.61, 0.59, 0.56, 0.51, 0.44},
+			[col]float64{0.53, 0.53, 0.52, 0.50, 0.47, 0.44, 0.38},
+		}
+	)
+
+	// check outside table
+	if χ < header[0] {
+		χ = header[0]
+	}
+	if χ > header[col-1] {
+		χ = header[col-1]
+	}
+	if ρ < ro[0] {
+		ρ = ro[0]
+	}
+	if ρ > ro[row-1] {
+		ρ = ro[row-1]
+	}
+	// parameters now in table
+
+	// generate a column
+	var xicol [row]float64
+	colIndex := col - 1
+	for c := 0; c < col; c++ {
+		if χ == header[c] {
+			colIndex = c
+			break
+		}
+		if c != 0 {
+			if header[c-1] < χ && χ < header[c] {
+				colIndex = c
+				break
+			}
+		}
+	}
+	if colIndex == 0 {
+		for r := 0; r < row; r++ {
+			xicol[r] = data[r][colIndex]
+		}
+	} else {
+		for r := 0; r < row; r++ {
+			xicol[r] = data[r][colIndex-1] +
+				(data[r][colIndex]-data[r][colIndex-1])*
+					(χ-header[colIndex-1])/
+					(header[colIndex]-header[colIndex-1])
+		}
+	}
+
+	// find by row
+	rowIndex := row - 1
+	for r := 0; r < row; r++ {
+		if ρ == ro[r] {
+			rowIndex = r
+			break
+		}
+		if r != 0 {
+			if ro[r-1] < ρ && ρ < ro[r] {
+				rowIndex = r
+				break
+			}
+		}
+	}
+	if rowIndex == 0 {
+		ν = xicol[rowIndex]
+	} else {
+		ν = xicol[rowIndex-1] +
+			(xicol[rowIndex]-xicol[rowIndex-1])*
+				(ρ-ro[rowIndex-1])/
+				(ro[rowIndex]-ro[rowIndex-1])
+	}
+	return
+}
+
 //
 // double SNiP2_01_07_p6_7b_Eta(double Wo, double Frequency, )
 // {
 //     double eta = sqrt(1.4 * Wo)/(940. * Frequency);
 //     return eta;
 // };
-//
-// double SNiP2_01_07_Schema12a_Re(double Diameter,double Wo, double Kz, )
-// {
-//     double Re = 0.88*Diameter*sqrt(Wo*Kz*1.4)*1e5;
-//     return Re;
-// }
-//
-// double SNiP2_01_07_Schema12b_K1(double h1, double d)
-// {
-//     double Otn[14]={
-//         0.2,    0.8,
-//         0.5,    0.9,
-//         1.0,    0.95,
-//         2.0,    1.0,
-//         5.0,    1.1,
-//         10.,    1.15,
-//         25.,    1.2
-//     };
-//     if(h1/d < Otn[0*2+0])return Otn[0*2+1];
-//     if(h1/d > Otn[6*2+0])return Otn[6*2+1];
-//     type_LLU i;
-//     for(i=0;i<7;i++)
-//     {
-//         if(h1/d == Otn[i*2+0]) return Otn[i*2 + 1];
-//         if(h1/d <  Otn[i*2+0]) break;
-//     }
-//     double k1 = LinearInter(Otn[i*2+1],Otn[i*2+0],Otn[(i-1)*2+1],Otn[(i-1)*2+0],h1/d);
-//     return k1;
-// }
-//
-// double SNiP2_01_07_Table9_Epsilon(double ro, double hi, )
-// {
-//     double ArrEpsilon[8*8]={
-//         0.0,    5.0,    10.,    20.,    40.,    80.,    160,    350,
-//         0.1,    0.95,   0.92,   0.88,   0.83,   0.76,   0.67,   0.56,
-//         5.0,    0.89,   0.87,   0.84,   0.80,   0.73,   0.65,   0.54,
-//         10.,    0.85,   0.84,   0.81,   0.77,   0.71,   0.64,   0.53,
-//         20.,    0.80,   0.78,   0.76,   0.73,   0.68,   0.61,   0.51,
-//         40.,    0.72,   0.72,   0.70,   0.67,   0.63,   0.57,   0.48,
-//         80.,    0.63,   0.63,   0.61,   0.59,   0.56,   0.51,   0.44,
-//         100,    0.53,   0.53,   0.52,   0.50,   0.47,   0.44,   0.38};
-//     if(ro < ArrEpsilon[1*8+0] || ro > ArrEpsilon[7*8+0])
-//     {
-//         print_name("Add function in SNiP2_01_07_Table9_Epsilon for ro. 1");
-//         printf("ro = %f\thi = %f\n",ro,hi);
-//         FATAL();
-//     }
-//     if(hi < ArrEpsilon[0*8+1] || hi > ArrEpsilon[0*8+7])
-//     {
-//         print_name("Add function in SNiP2_01_07_Table9_Epsilon for ro. 2");
-//         printf("ro = %f\thi = %f\n",ro,hi);
-//         FATAL();
-//     }
-//     type_LLU i,j;
-//     for(i=0;i<7;i++)
-//         if(ro < ArrEpsilon [(i+1)*8+0]) break;
-//     for(j=0;j<7;j++)
-//         if(hi < ArrEpsilon [0*8+(j+1)]) break;
-//     i++;j++;
-//     //   p1   p5   p2    //
-//     //   *    |    *     //
-//     //                   //
-//     //   *    |    *     //
-//     //   p3   p6   p4    //
-//     double p1 = ArrEpsilon[(i-1)*8+(j-1)];
-//     double p2 = ArrEpsilon[(i-1)*8+(j-0)];
-//     double p3 = ArrEpsilon[(i-0)*8+(j-1)];
-//     double p4 = ArrEpsilon[(i-0)*8+(j-0)];
-//     double p5 = LinearInter(p2,ArrEpsilon [0*8+j],p1,ArrEpsilon [0*8+(j-1)],hi);
-//     double p6 = LinearInter(p4,ArrEpsilon [0*8+j],p3,ArrEpsilon [0*8+(j-1)],hi);
-//     double eps = LinearInter(p6,ArrEpsilon [i*8+0],p5,ArrEpsilon [(i-1)*8+0],ro);
-//     return eps;
-// };
-//
-// double SNiP2_01_07_Schema12b_Ce1(double angle, double h1, double d, )
-// {
-//     if(angle == 0. ) return 1.0;
-//     if(angle < 0.  ) return SNiP2_01_07_Schema12b_Ce1(-angle                     ,h1,d,OUT);
-//     if(angle > 360.) return SNiP2_01_07_Schema12b_Ce1(angle - int(angle/360.)*360,h1,d,OUT);
-//     if(angle > 180.) return SNiP2_01_07_Schema12b_Ce1(180.-(angle-180.)          ,h1,d,OUT);
-//     double Otn[30] = {
-//         00.,    1.0,
-//         10.,    1.0,
-//         20.,    0.8,
-//         30.,    0.4,
-//         40.,    0.0,
-//         50.,    -0.6,
-//         60.,    -1.2,
-//         70.,    -1.3,
-//         80.,    -1.2,
-//         90.,    -1.0,
-//         100.,   -0.8,
-//         110.,   -0.4,
-//         120.,   -0.4,
-//         130.,   -0.4,
-//         180.1,   -0.4};
-// //    if(angle < Otn[00*2+0])return Otn[00*2+1];
-// //    if(angle > Otn[14*2+0])return Otn[14*2+1];
-//     type_LLU i;
-//     for(i=0;i<15;i++)
-//     {
-//         //if(angle == Otn[i*2+0]) return Otn[i*2 + 1];
-//         if(angle <  Otn[i*2+0]) break;
-//     }
-//     double Cbetta = LinearInter(Otn[i*2+1],Otn[i*2+0],Otn[(i-1)*2+1],Otn[(i-1)*2+0],angle);
-//     double k1     = SNiP2_01_07_Schema12b_K1(h1, d);
-//     if(Cbetta > 0) k1 = 1;
-//     double Ce1 = Cbetta * k1;
-//     return Ce1;
-// }
 //
 // double SNiP2_01_07_Formula6_Wn( double Wo, double C, double K, bool OUT=false)
 // {
