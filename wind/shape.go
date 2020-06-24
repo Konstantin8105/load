@@ -3,7 +3,7 @@ package wind
 import "math"
 
 // see part B.1.11
-func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err error) {
+func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, Re, ν float64, err error) {
 	// TODO : add error handling
 	ze := zg + d/2.0
 
@@ -19,7 +19,7 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 	if err != nil {
 		return
 	}
-	Re := 0.88 * d * math.Sqrt(Wo*Kz*γf) * 1e5
+	Re = 0.88 * d * math.Sqrt(Wo*Kz*γf) * 1e5
 	cx = GraphB14(d, Δ, Re)
 	ν = FactorNu(0.7*d, 0.7*d)
 
