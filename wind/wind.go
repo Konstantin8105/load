@@ -21,8 +21,20 @@ const (
 	RegionVII        = 850.0
 )
 
-func (wr Region) String() string {
-	// TODO: add translation
+func ListWo() []Region {
+	return []Region{
+		RegionIa,
+		RegionI,
+		RegionII,
+		RegionIII,
+		RegionIV,
+		RegionV,
+		RegionVI,
+		RegionVII,
+	}
+}
+
+func (wr Region) Name() string {
 	var name string
 	switch wr {
 	case RegionIa:
@@ -45,8 +57,13 @@ func (wr Region) String() string {
 		name = "undefine"
 		panic(wr)
 	}
+	return name
+}
 
-	return fmt.Sprintf("Wind region: %s with value = %.2f", name, float64(wr)) // TODO: add unit
+func (wr Region) String() string {
+	name := wr.Name()
+	// TODO: add translation
+	return fmt.Sprintf("Wind region: %3s with value = %.1f Pa", name, float64(wr)) // TODO: add unit
 }
 
 type Zone byte

@@ -9,6 +9,74 @@ import (
 	"text/tabwriter"
 )
 
+func ExampleWo() {
+	wos := ListWo()
+	var buf bytes.Buffer
+	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
+
+	fmt.Fprintf(w, "factor Wo\n")
+
+	fmt.Fprintf(w, "region")
+	for _, wo := range wos {
+		fmt.Fprintf(w, "\t%8s", wo.Name())
+	}
+	fmt.Fprintf(w, "\n")
+
+	fmt.Fprintf(w, "Wo, kPa")
+	for _, wo := range wos {
+		fmt.Fprintf(w, "\t%8.2f", float64(wo)/1000.0)
+	}
+	fmt.Fprintf(w, "\n")
+
+	for _, wo := range wos {
+		fmt.Fprintf(w, "%s\n", wo)
+	}
+
+	w.Flush()
+	fmt.Fprintf(os.Stdout, "%s", buf.String())
+	// Output:
+	// factor Wo
+	// region        Ia        I       II      III       IV        V       VI      VII
+	// Wo, kPa     0.17     0.23     0.30     0.38     0.48     0.60     0.73     0.85
+	// Wind region:  Ia with value = 170.0 Pa
+	// Wind region:   I with value = 230.0 Pa
+	// Wind region:  II with value = 300.0 Pa
+	// Wind region: III with value = 380.0 Pa
+	// Wind region:  IV with value = 480.0 Pa
+	// Wind region:   V with value = 600.0 Pa
+	// Wind region:  VI with value = 730.0 Pa
+	// Wind region: VII with value = 850.0 Pa
+}
+
+func ExampleNaturalFrequencyLimit() {
+	var buf bytes.Buffer
+	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
+	fmt.Fprintf(w, "natural frequency limit\n")
+	for _, wo := range ListWo() {
+		fl30, err := NaturalFrequencyLimit(wo, LogDecriment30)
+		if err != nil {
+			panic(err)
+		}
+		fl15, err := NaturalFrequencyLimit(wo, LogDecriment15)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Fprintf(w, "%3s\t%4.2f\t%4.2f\n", wo.Name(), fl30, fl15)
+	}
+	w.Flush()
+	fmt.Fprintf(os.Stdout, "%s", buf.String())
+	// Output:
+	// natural frequency limit
+	//  Ia 0.85 2.60
+	//   I 0.95 2.90
+	//  II 1.10 3.40
+	// III 1.20 3.80
+	//  IV 1.40 4.30
+	//   V 1.60 5.00
+	//  VI 1.70 5.60
+	// VII 1.90 5.90
+}
+
 func TestFactorXi(t *testing.T) {
 	tcs := []struct {
 		e          float64

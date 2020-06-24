@@ -294,40 +294,6 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //            Veter_BaseFunction::Wn(Wo,Ce1,K,true);
 //        }
 //    }
-
-// void WindLoad::Add_Height()
-// {
-//     height->Sort(func);
-//     double H_min = height->Get(0);
-//     double H_max = height->Get(height->GetSize()-1);
-//     double  Z[14] ={
-//         0  ,5  ,10 ,20 ,40 , 60,
-//         80 ,100,150,200,250,300,
-//         350,480};
-//     for(type_LLU i=0;i<14;i++)
-//     {
-//         if(H_min < Z[i] && Z[i] <H_max)
-//             height->Add(Z[i]);
-//     }
-//     height->Sort(func);
-// }
-//
-// void WindLoad::Printf_K_Dzeta()
-// {
-//     ::Printf(zone);
-//     if(height->GetSize() == 0)return;
-//     printf("Height,m\tk\tDzeta\n");
-//     for(type_LLU i = 0; i<height->GetSize();i++)
-//     {
-//         printf("%3.3f\t",height->Get(i));
-//         printf("%.3f\t",SNiP2_01_07_table6_K    (height->Get(i),zone));
-//         printf("%.3f"  ,SNiP2_01_07_table7_Dzeta(height->Get(i),zone));
-//         printf("\n");
-//     }
-// }
-//
-//
-//
 // void WindLoad::CalculateCyl
 //                    (double Diameter, type_LLU NumberOfCutting, Array<double> *H, Array<double> *Hz,
 //                     double _Wo,
@@ -353,21 +319,13 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //         double eta = SNiP2_01_07_p6_7b_Eta(Wo,f);
 //         double ksi = SNiP2_01_07_Pics2_Ksi(Log_Decriment,eta);
 //         summ_ksi   = sqrt(pow(ksi,2)+pow(summ_ksi,2));
-//         printf("%.3fHz\t%.3f\t%.3f\n",f,eta,ksi);
 //     }
-//     printf("Ksi for calculation: %.3f\n", summ_ksi);
 //
 //     height->Sort(func);
 //     double H_max = height->Get(height->GetSize()-1);
 //     double Re    = SNiP2_01_07_Schema12a_Re(Diameter,Wo,
 //                    SNiP2_01_07_table6_K    (H_max,zone), true);
 //
-//     printf("Calculation: average component Wm, N/m2\n");
-//     printf("alpha\tCe\tCoeff.K\n");
-//     printf("\t\t");
-//     for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%+1.3f\t",SNiP2_01_07_table6_K(height->Get(j),zone));
-//     printf("\n");
 //     Array<double> Angle;Angle.SetSize(NumberOfCutting+1);
 //     Array<double> Wm;Wm.SetSize(height->GetSize()*Angle.GetSize());
 //     for(type_LLU i=0;i<Angle.GetSize();i++)
@@ -379,21 +337,12 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //     }
 //     for(type_LLU i=0;i<Angle.GetSize();i++)
 //     {
-//         printf("%3.1f\t",Angle.Get(i));
 //         double Ce = SNiP2_01_07_Schema12b_Ce1(Angle.Get(i), H_max, Diameter, false);
-//         printf("%1.2f\t",Ce);
-//         for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%3.f\t",Wm.Get(i*height->GetSize()+j));
-//         printf("\n");
 //     }
 //
-//     printf("\n");
-//     printf("Calculation: pulsing component Wp, N/m2\n");
 //     double ro = Diameter;
 //     double hi = H_max;
 //     double Eps = SNiP2_01_07_Table9_Epsilon(ro, hi);
-//     printf("from table 9 SNiP 2.01.07\n");
-//     printf("ro = %.3fm\tho = %.3fm\tEps = %.2f\n",ro,hi,Eps);
 //
 //     Array<double> Wp;Wp.SetSize(Wm.GetSize());
 //     for(type_LLU i=0;i<Angle.GetSize();i++)
@@ -401,46 +350,22 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //         for(type_LLU j = 0;j<height->GetSize();j++)
 //             Wp.Set(i*height->GetSize()+j,SNiP2_01_07_Formula9_Wp( Wm.Get(i*height->GetSize()+j), SNiP2_01_07_table7_Dzeta(H_max,zone),summ_ksi, Eps));
 //     }
-//     printf("alpha\tCe\tCoeff.Dzeta\n");
-//     printf("\t\t");
-//     for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%+1.3f\t",SNiP2_01_07_table7_Dzeta(height->Get(j),zone));
-//     printf("\n");
 //     for(type_LLU i=0;i<Angle.GetSize();i++)
 //     {
-//         printf("%3.1f\t",Angle.Get(i));
 //         double Ce = SNiP2_01_07_Schema12b_Ce1(Angle.Get(i), H_max, Diameter, false);
-//         printf("%1.2f\t",Ce);
-//         for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%3.f\t",Wp.Get(i*height->GetSize()+j));
-//         printf("\n");
 //     }
 //
-//     printf("\n");
-//     printf("Calculation: summary component Wsum, N/m2\n");
 //     Array<double> Wsum;Wsum.SetSize(Wm.GetSize());
 //     for(type_LLU i=0;i<Angle.GetSize();i++)
 //     {
 //         for(type_LLU j = 0;j<height->GetSize();j++)
 //             Wsum.Set(i*height->GetSize()+j,Wm.Get(i*height->GetSize()+j)+Wp.Get(i*height->GetSize()+j));
 //     }
-//     printf("alpha\tCe\tHeight,m\n");
-//     printf("\t\t");
-//     for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%+1.3f\t",height->Get(j));
-//     printf("\n");
 //     for(type_LLU i=0;i<Angle.GetSize();i++)
 //     {
-//         printf("%3.1f\t",Angle.Get(i));
 //         double Ce = SNiP2_01_07_Schema12b_Ce1(Angle.Get(i), H_max, Diameter, false);
-//         printf("%1.2f\t",Ce);
-//         for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%3.f\t",Wsum.Get(i*height->GetSize()+j));
-//         printf("\n");
 //     }
 //
-//     printf("\n");
-//     printf("Calculation: summary force\n");
 //     Array<double> Fx,Fy; Fx.SetSize(Angle.GetSize()-1); Fy.SetSize(Angle.GetSize()-1);
 //     printf("Angle\tFaw, N\tFx, N\tFy, N\n");
 //     for(type_LLU i=0;i<Angle.GetSize()-1;i++)
@@ -457,13 +382,9 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //                    Wsum.Get((i+1)*height->GetSize()+j-1))/4;
 //             Faw += Waw * (height->Get(j)-height->Get(j-1))*L;
 //         }
-//         printf("%.1f\t",Faw);
 //         double AlphaAw = (Angle.Get(i)+Angle.Get(i+1))/2.;
 //         Fx.Set(i,Faw*cos(AlphaAw*CONST_M_PI/180));
 //         Fy.Set(i,Faw*sin(AlphaAw*CONST_M_PI/180));
-//         printf("%.1f\t",Fx.Get(i));
-//         printf("%.1f\t",Fy.Get(i));
-//         printf("\n");
 //     }
 //     double summ_Fx=0,summ_Fy=0;
 //     for(type_LLU i=0;i<Fx.GetSize();i++)
@@ -471,11 +392,8 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //         summ_Fx += Fx.Get(i);
 //         summ_Fy += Fy.Get(i);
 //     }
-//     printf("Summary of Fx: %5.1fN\n",summ_Fx);
-//     printf("Summary of Fy: %5.1fN\n",summ_Fy);
 //
 //     // Rezonce check
-//     printf("\nRezonce check\n");
 //     double Vmax = SNiP2_01_07_actual_Formula11_13_Vmax(Wo, SNiP2_01_07_table6_K(H_max,zone),true);
 //     bool Check_Rezonance = false;
 //     for(type_LLU i =0;i<frequency->GetSize();i++)
@@ -730,90 +648,38 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //     double H_max = height->Get(height->GetSize()-1);
 //     Ce.Add(SNiP2_01_07_Cxema2_Ce3( H_max-H_min, XX, YY, true));
 //
-//     printf("Dimension X: %.3f m\n", XX);
-//     printf("Dimension Y: %.3f m\n", YY);
-//     Printf_K_Dzeta();
-//
-//     Printf(Log_Decriment);
 //     double summ_ksi = 0;
-//     printf("Natural frecuency\tEta\tKsi\n");
 //     for(type_LLU i = 0;i<frequency->GetSize();i++)
 //     {
 //         double f   = frequency->Get(i);
 //         double eta = SNiP2_01_07_p6_7b_Eta(Wo,f);
 //         double ksi = SNiP2_01_07_Pics2_Ksi(Log_Decriment,eta);
 //         summ_ksi   = sqrt(pow(ksi,2)+pow(summ_ksi,2));
-//         printf("%.3fHz\t%.3f\t%.3f\n",f,eta,ksi);
 //     }
-//     printf("Ksi for calculation: %.3f\n", summ_ksi);
-//
-//     printf("Calculation: average component Wm, N/m2\n");
-//     printf("Ce\tCoeff.K\n");
-//     printf("\t");
-//     for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%+1.3f\t",SNiP2_01_07_table6_K(height->Get(j),zone));
-//     printf("\n");
 //     Array<double> Wm;Wm.SetSize(height->GetSize()*Ce.GetSize());
 //     for(type_LLU i=0;i<Ce.GetSize();i++)
 //     {
-//         printf("%.2f\t",Ce.Get(i));
 //         for(type_LLU j = 0;j<height->GetSize();j++)
 //         {
 //             Wm.Set(i*height->GetSize()+j,SNiP2_01_07_Formula6_Wn(Wo,Ce.Get(i),SNiP2_01_07_table6_K(height->Get(j),zone)));
-//             printf("%3.f\t",Wm.Get(i*height->GetSize()+j));
 //         }
-//         printf("\n");
 //     }
 //
-//     printf("\n");
-//     printf("Calculation: pulsing component Wp, N/m2\n");
 //     double ro = YY;
 //     double hi = H_max;
 //     double Eps = SNiP2_01_07_Table9_Epsilon(ro, hi);
-//     printf("from table 9 SNiP 2.01.07\n");
-//     printf("ro = %.3fm\tho = %.3fm\tEps = %.2f\n",ro,hi,Eps);
 //     Array<double> Wp;Wp.SetSize(Wm.GetSize());
 //     for(type_LLU i=0;i<Ce.GetSize();i++)
 //     {
 //         for(type_LLU j = 0;j<height->GetSize();j++)
 //             Wp.Set(i*height->GetSize()+j,SNiP2_01_07_Formula9_Wp( Wm.Get(i*height->GetSize()+j), SNiP2_01_07_table7_Dzeta(H_max,zone),summ_ksi, Eps));
 //     }
-//     printf("Ce\tCoeff.Dzeta\n");
-//     printf("\t");
-//     for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%+1.3f\t",SNiP2_01_07_table7_Dzeta(height->Get(j),zone));
-//     printf("\n");
-//     for(type_LLU i=0;i<Ce.GetSize();i++)
-//     {
-//         printf("%1.2f\t",Ce.Get(i));
-//         for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%3.f\t",Wp.Get(i*height->GetSize()+j));
-//         printf("\n");
-//     }
-//
-//     printf("\n");
-//     printf("Calculation: summary component Wsum, N/m2\n");
 //     Array<double> Wsum;Wsum.SetSize(Wm.GetSize());
 //     for(type_LLU i=0;i<Ce.GetSize();i++)
 //     {
 //         for(type_LLU j = 0;j<height->GetSize();j++)
 //             Wsum.Set(i*height->GetSize()+j,Wm.Get(i*height->GetSize()+j)+Wp.Get(i*height->GetSize()+j));
 //     }
-//     printf("Ce\tHeight,m\n");
-//     printf("\t");
-//     for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%+1.3f\t",height->Get(j));
-//     printf("\n");
-//     for(type_LLU i=0;i<Ce.GetSize();i++)
-//     {
-//         printf("%1.2f\t",Ce.Get(i));
-//         for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%3.f\t",Wsum.Get(i*height->GetSize()+j));
-//         printf("\n");
-//     }
-//
-//     printf("\n");
-//     printf("Calculation: summary force\n");
 //     double Fx=0,Fy=0;
 //     for(type_LLU j = 1;j<height->GetSize();j++)
 //     {
@@ -826,11 +692,8 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //                Wsum.Get(1*height->GetSize()+j-1))/2.*
 //               (height->Get(j)-height->Get(j-1))*YY;
 //     }
-//     printf("Summary of Fx: %5.1fN\n",Fx);
-//     printf("Summary of Fy: %5.1fN\n",Fy);
 //
 //     // Rezonce check
-//     printf("\nRezonce check\n");
 //     double Vmax = SNiP2_01_07_actual_Formula11_13_Vmax(Wo, SNiP2_01_07_table6_K(H_max,zone),true);
 //     bool Check_Rezonance = false;
 //     for(type_LLU i =0;i<frequency->GetSize();i++)
@@ -838,8 +701,6 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //         double Vcr = SNiP2_01_07_actual_Formula11_11_Vcr(frequency->Get(i),YY,Wind_Struhale_Rectangle,true);
 //         if(SNiP2_01_07_actual_Formula11_12_Check(Vcr, Vmax, true)) Check_Rezonance = true;
 //     }
-//     if(Check_Rezonance) printf("Check rezonance\n");
-//     else printf("No rezonance in case\n");
 // }
 //
 // void WindLoad::CalculateConv
@@ -891,7 +752,6 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //         height->SetSize(5+1);
 //         for(type_LLU u=0;u<height->GetSize();u++)
 //             height->Set(u,H_min+(H_max-H_min)/(height->GetSize()-1)*u);
-//             printf("%u\t%.9f m\n",u,height->Get(u));
 //         Ce.Add(SNiP2_01_07_Cxema2_Ce3( H_max-H_min, XX, YY, DEBUG));
 //
 //         double summ_ksi = 0;
@@ -1096,10 +956,7 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //     zone      = Zone;
 //     Log_Decriment = LD;
 //     frequency = Hz;
-//     printf("Calculate frame\n");
-//     printf("\nWind with frame X\n");
 //     CalculateFr(XX,YY);
-//     printf("\nWind with frame Y\n");
 //     CalculateFr(YY,XX);
 // }
 //
@@ -1112,111 +969,46 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //     double H_min = height->Get(0);
 //     double H_max = height->Get(height->GetSize()-1);
 //
-//     printf("Dimension X: %.3f m\n", XX);
-//     printf("Dimension Y: %.3f m\n", YY);
-//     Printf_K_Dzeta();
-//
-//     Printf(Log_Decriment);
 //     double summ_ksi = 0;
-//     printf("Natural frecuency\tEta\tKsi\n");
 //     for(type_LLU i = 0;i<frequency->GetSize();i++)
 //     {
 //         double f   = frequency->Get(i);
 //         double eta = SNiP2_01_07_p6_7b_Eta(Wo,f);
 //         double ksi = SNiP2_01_07_Pics2_Ksi(Log_Decriment,eta);
 //         summ_ksi   = sqrt(pow(ksi,2)+pow(summ_ksi,2));
-//         printf("%.3fHz\t%.3f\t%.3f\n",f,eta,ksi);
 //     }
-//     printf("Ksi for calculation: %.3f\n", summ_ksi);
-//
-//     printf("Calculation: average component Wm, N/m2\n");
-//     printf("Ce\tCoeff.K\n");
-//     printf("\t");
-//     for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%+1.3f\t",SNiP2_01_07_table6_K(height->Get(j),zone));
-//     printf("\n");
 //     Array<double> Wm;Wm.SetSize(height->GetSize()*Ce.GetSize());
 //     for(type_LLU i=0;i<Ce.GetSize();i++)
 //     {
-//         printf("%.2f\t",Ce.Get(i));
 //         for(type_LLU j = 0;j<height->GetSize();j++)
 //         {
 //             Wm.Set(i*height->GetSize()+j,SNiP2_01_07_Formula6_Wn(Wo,Ce.Get(i),SNiP2_01_07_table6_K(height->Get(j),zone)));
-//             printf("%3.f\t",Wm.Get(i*height->GetSize()+j));
 //         }
-//         printf("\n");
 //     }
 //
-//     printf("\n");
-//     printf("Calculation: pulsing component Wp, N/m2\n");
 //     double ro = YY;
 //     double hi = H_max;
 //     double Eps = SNiP2_01_07_Table9_Epsilon(ro, hi);
-//     printf("from table 9 SNiP 2.01.07\n");
-//     printf("ro = %.3fm\tho = %.3fm\tEps = %.2f\n",ro,hi,Eps);
 //     Array<double> Wp;Wp.SetSize(Wm.GetSize());
 //     for(type_LLU i=0;i<Ce.GetSize();i++)
 //     {
 //         for(type_LLU j = 0;j<height->GetSize();j++)
 //             Wp.Set(i*height->GetSize()+j,SNiP2_01_07_Formula9_Wp( Wm.Get(i*height->GetSize()+j), SNiP2_01_07_table7_Dzeta(H_max,zone),summ_ksi, Eps));
 //     }
-//     printf("Ce\tCoeff.Dzeta\n");
-//     printf("\t");
-//     for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%+1.3f\t",SNiP2_01_07_table7_Dzeta(height->Get(j),zone));
-//     printf("\n");
-//     for(type_LLU i=0;i<Ce.GetSize();i++)
-//     {
-//         printf("%1.2f\t",Ce.Get(i));
-//         for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%3.f\t",Wp.Get(i*height->GetSize()+j));
-//         printf("\n");
-//     }
-//
-//     printf("\n");
-//     printf("Calculation: summary component Wsum, N/m2\n");
 //     Array<double> Wsum;Wsum.SetSize(Wm.GetSize());
 //     for(type_LLU i=0;i<Ce.GetSize();i++)
 //     {
 //         for(type_LLU j = 0;j<height->GetSize();j++)
 //             Wsum.Set(i*height->GetSize()+j,Wm.Get(i*height->GetSize()+j)+Wp.Get(i*height->GetSize()+j));
 //     }
-//     printf("Ce\tHeight,m\n");
-//     printf("\t");
-//     for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%+1.3f\t",height->Get(j));
-//     printf("\n");
-//     for(type_LLU i=0;i<Ce.GetSize();i++)
-//     {
-//         printf("%1.2f\t",Ce.Get(i));
-//         for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%3.f\t",Wsum.Get(i*height->GetSize()+j));
-//         printf("\n");
-//     }
 //
-//     printf("\n");
-//     printf("Calculation: summary component Qsum,N/m\n");
 //     Array<double> Qsum;Qsum.SetSize(Wm.GetSize());
 //     for(type_LLU i=0;i<Ce.GetSize();i++)
 //     {
 //         for(type_LLU j = 0;j<height->GetSize();j++)
 //             Qsum.Set(i*height->GetSize()+j,Wm.Get(i*height->GetSize()+j)*XX);
 //     }
-//     printf("Ce\tHeight,m\n");
-//     printf("\t");
-//     for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%+1.3f\t",height->Get(j));
-//     printf("\n");
-//     for(type_LLU i=0;i<Ce.GetSize();i++)
-//     {
-//         printf("%1.2f\t",Ce.Get(i));
-//         for(type_LLU j = 0;j<height->GetSize();j++)
-//             printf("%3.1f\t",Qsum.Get(i*height->GetSize()+j));
-//         printf("\n");
-//     }
-//
 //     // Rezonce check
-//     printf("\nRezonce check\n");
 //     double Vmax = SNiP2_01_07_actual_Formula11_13_Vmax(Wo, SNiP2_01_07_table6_K(H_max,zone),true);
 //     bool Check_Rezonance = false;
 //     for(type_LLU i =0;i<frequency->GetSize();i++)
@@ -1224,8 +1016,6 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //         double Vcr = SNiP2_01_07_actual_Formula11_11_Vcr(frequency->Get(i),YY,Wind_Struhale_Rectangle,true);
 //         if(SNiP2_01_07_actual_Formula11_12_Check(Vcr, Vmax, true)) Check_Rezonance = true;
 //     }
-//     if(Check_Rezonance) printf("Check rezonance\n");
-//     else printf("No rezonance in case\n");
 // }
 //
 //
@@ -1358,18 +1148,6 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 // 	Qvert = _Wn*l/2;
 // 	Mvert = _Wn*l*l/8.;
 // 	if(out != false) // Вывод результатов //
-// 	{
-// 	    printf("\nРасчет ветровой нагрузки, действующую на пластину.\n");
-// 		printf("Исходные данные:\n");
-// 		printf("L = %.3f м - горизонтальный размер пластины.\n",l);
-// 		printf("Решение:\n");
-// 		printf("Q = Wn  x L/2 - погонная нагрузка на вертикальный стержень.\n");
-// 		printf("Q = %.3f  x %.3f/2.\n",_Wn,l);
-// 		printf("Q = %.2f Н/м.\n",Qvert);
-// 		printf("M = Wn x L x L/8 - погонный момент на вертикальный стержень.\n");
-// 		printf("M = %.3f x %.3f x %.3f/8.\n",_Wn,l,l);
-// 		printf("M = %.2f Н*м/м.\n",Mvert);
-// 	}
 // 	*Q = Qvert;
 // 	*M = Mvert;
 // }
@@ -1389,43 +1167,19 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //     void Calculate();// Расчет задачи
 // };
 //
-// void VeterCylinder::printRawData()
-// {
-// 	printf("\n\nИсходные данные:\n");
-// 	printf("Номер отметки\tОтметка,м\n");
-// 	type_LLU i;
-// 	for (i=0 ; i<vn ; i++)
-// 	    printf("%u\t%.3f\n",i,H[i]);
-//     for (i=1 ; i<vn ; i++)
-//         if(H[i] < H[i-1]) FATAL();
-// 	printf("d  = %.3f м - Диаметр цилиндра, м.\n",d );
-// 	printf("gn  = %u - Количество секций цилиндра, шт.\n",gn);
-// 	printf("Wo = %.2f Па.\n",Wo);
-// 	Veter_BaseFunction::printf_zone(Z);
-// 	if(vn < 2 || gn < 6)FATAL();
-// };
 //
 // void VeterCylinder::Calculate()
 // {
 //     type_LLU i;
 //     for( i=0; i < (vn-1) ; i++ )
 //     {
-//         printf("\nРасчет уровня номер %u .\n", i+1 );
-//         printf("\nРасчет производится по схеме 12б приложения 4 [__].\n");
 //         double hi = H[i+1];
-//         printf("Значение h1/d = %.3f.\n",H[vn-1]/d);
-//         printf("Определение числа Рейнольдса(Re)\n");
 //         double kz  = Veter_BaseFunction::Get_K(hi,Z);
-//         printf("Значение коэффициента K для определения Re на высоте %.3f м составляет %.3f.\n",hi,kz);
-//         printf("Расчет производится по схеме 12а приложения 4 [__].\n");
 //         double _Re = Veter_BaseFunction::Get_Re(d,Wo,kz,true);
-//         if ( _Re > 4e5) printf("Re = %.3f  > 400000 - Условие выполнено.\n",_Re);
-//         else { FATAL(); printf("Re <= 400000.\n\n\n\n"); return; }
 //         double K  = Veter_BaseFunction::Get_K(hi,Z);//k(H1,H2,Z);///ДОПУСКАЕТЬСЯ УМЕНЬШИТЬ ИСПОЛЬЗУЯ АППРОКСИМАЦИЮ
 //         type_LLU j;
 //         for(j=0;j<((type_LLU)(gn/2+0.6)); j++)
 //         {
-//             printf("\nУчасток №%u\n",j);
 //             double angle1 = j*(360./gn);
 //             double angle2 = (j+1)*(360./gn);
 //             if(middle == false)
@@ -1433,15 +1187,11 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //                 angle1 -= (360./gn)/2.;
 //                 angle2 -= (360./gn)/2.;
 //             }
-//             printf("Начальный угол - %.2f град.\n",angle1);
-//             printf("Конечный  угол - %.2f град.\n",angle2);
 //             double Ce1 = Veter_BaseFunction::Get_Ce1_Cxema12b(angle2,angle1,H[vn-1],d);
-//             printf("Определение Wn:\n");
 //             Veter_BaseFunction::Wn(Wo,Ce1,K,true);
 //         }
 //         if(middle == false)
 //         {
-//             printf("\nУчасток №%u\n",j);
 //             double angle1 = j*(360./gn);
 //             double angle2 = (j+1)*(360./gn);
 //             if(middle == false)
@@ -1449,10 +1199,7 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //                 angle1 -= (360./gn)/2.;
 //                 angle2 -= (360./gn)/2.;
 //             }
-//             printf("Начальный угол - %.2f град.\n",angle1);
-//             printf("Конечный  угол - %.2f град.\n",angle2);
 //             double Ce1 = Veter_BaseFunction::Get_Ce1_Cxema12b(angle2,angle1,H[vn-1],d);
-//             printf("Определение Wn:\n");
 //             Veter_BaseFunction::Wn(Wo,Ce1,K,true);
 //         }
 //     }
@@ -1474,20 +1221,6 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //     void printRawData(); // Вывод исходных данных
 // };
 //
-// void VererStenka::printRawData()
-// {
-// 	printf("\n\nИсходные данные:\n");
-// 	printf("Номер стержня\tПоложение стержня\n");
-// 	type_LLU i;
-// 	for (i=0 ; i<n ; i++)
-// 	    printf("%u\t%.3f\n",i+1,l[i]);
-//     for (i=1 ; i<n ; i++)
-//         if(l[i] < l[i-1]) FATAL();
-// 	printf("k  = %.3f - коэффициент, м.\n",k );
-// 	printf("n  = %u шт - Количество секций, шт.\n",n);
-// 	printf("Wo = %.2f Па.\n",Wo);
-// }
-//
 // void VererStenka::Calculate()
 // {
 //     type_LLU i;
@@ -1504,7 +1237,6 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //          Plastine.Get(i).Calculate(&temp,&temp,out);
 //     }
 //     line();
-//     printf("\nВывод данных полученных из расчетов:\n");
 //     for(i=0;i<n;i++)
 //     {
 //         double Q=0;
@@ -1522,9 +1254,6 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //             Q = q1 + q2;
 //             M = m1 - m2;
 //         }
-//         printf("для стержня: %i\n",i+1);
-//         printf("Q = %.2f Н/м.\n",    Q);
-//         printf("M = %.2f Н х м/м.\n",M);
 //     }
 // };
 // //////////////////////////////////////////////
@@ -1546,39 +1275,6 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 //     void Calculate_alternative();
 // 	void printRawData();
 // };
-// void VeterZdanie::printRawData()
-// {
-//     type_LLU i=0;
-//     printf("Расчет ветровой нагрузки на здание по схеме 2 приложения 4 СНиП 2.01.07-85*.\n");
-//     printf("Исходные данные.\n");
-//     Veter_BaseFunction::printf_zone( Zone );
-//     if(nX < 2 || nY < 2 || nZ < 2) FATAL();
-//     printf("Значение Wo = %.1f Па.\n",Wo);
-//     printf("Количество вертикальных участков - %u.\n",(nZ-1));
-//     printf("Количество горизонтальных участков по оси X - %u.\n",(nX-1));
-//     printf("Количество горизонтальных участков по оси Y - %u.\n",(nY-1));
-//     printf("Номер отметки\tОтметка, м\n");
-//     for( i=0; i<nZ ; i++ )
-//     {
-//         printf("%u\t%.3f\n",i,Z[i]);
-//     }
-//     for( i=1; i<nZ ; i++ )
-//          if(Z[i]<Z[i-1])FATAL();
-//     printf("Номер точки по X\tПоложение, м\n");
-//     for( i=0; i<nX ; i++ )
-//     {
-//         printf("%u\t%.3f\n",i,X[i]);
-//     }
-//     for( i=1; i<nX ; i++ )
-//          if(X[i]<X[i-1])FATAL();
-//     printf("Номер точки по Y\tПоложение, м\n");
-//     for( i=0; i<nY ; i++ )
-//     {
-//         printf("%u\t%.3f\n",i,Y[i]);
-//     }
-//     for( i=1; i<nY ; i++ )
-//          if(Y[i]<Y[i-1])FATAL();
-// }
 //
 // void VeterZdanie::Calculate()
 // {
@@ -1710,49 +1406,19 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 // 	void printRawData();
 // };
 //
-// void VeterTrube_Gorizontal::printRawData()
-// {
-//     printf("\n\nРасчет горизонтальной трубы по схеме 13 приложения 4 СНиП 2.01.07-85*\n");
-//     printf("Исходные данные\n");
-//     printf("D = %.3f м - диаметр трубы\n",D);
-//     printf("l = %.3f м - горизонтальная длина трубы\n",l);
-//     printf("Н = %.3f м - отметка высоты оси трубы\n",H);
-//     Veter_BaseFunction::printf_zone( Zone );
-//     if(D < 0 || l < 0 || H < 0) FATAL();
-//     printf("Значение Wo = %.1f Па\n",Wo);
-// }
-//
 // void VeterTrube_Gorizontal::Calculate()
 // {
-//     printf("Определение значения lambda\n");
 //     double lambda = D/l;
-//     printf("lambda = D/l = %.3f / %.3f\n",D,l);
-//     printf("lambda = %.3f\n", lambda);
-//     printf("Определение значения lambda_e\n");
-//     printf("lambda_e = lambda = %.3f\n", lambda);
-//     printf("Определение значения коэффициента k по таблице 1 схемы 13\n");
 //     double k = Veter_BaseFunction::Get_K_Cxema13(lambda);
-//     printf("k = %.3f\n", k);
-//     printf("Определение значения K (K_6) по таблице 6 СНиП 2.01.07-85*\n");
 //     double K_6 = Veter_BaseFunction::Get_K(H,Zone);
-//     printf("K_6 = %.3f\n", K_6);
-//     printf("Определение числа Рейнольдса по схемы 12а\n");
 //     double Re = Veter_BaseFunction::Get_Re(D,Wo,K_6,true);
-//     printf("Определение значения аэродинамического коэффициента Ce_x_bez по графику схемы 14\n");
 //     double Ce_x_bez = Veter_BaseFunction::Get_Ce_x_bez(0.001/D, Re);
-//     printf("Ce_x_bez = %.3f\n", Ce_x_bez);
-//     printf("Определение значения аэродинамического коэффициента Ce\n");
 //     double Ce = Ce_x_bez * K_6;
-//     printf("Ce = Ce_x_bez * K_6 = %.3f * %.3f\n", Ce_x_bez, K_6);
-//     printf("Ce = %.3f\n", Ce);
 //
 //     double wn = Veter_BaseFunction::Wn(Wo,Ce,K_6,true);
-//     printf("Определение нагрузки на стержень\n");
 //     double Qn = Veter_BaseFunction::Qn(wn,D);
-//     printf("Qn = %.3f Н/м\n", Qn);
 //
 // }
-// */
 //
 //
 //
@@ -1786,11 +1452,7 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 // //    double factor = 0;
 // //    //double E = 2.06e11;
 // //
-// //    printf("Check 1\n");
-// //    printf("Sigma = %.1fMPa < Sigma_Max = %.1fMPa\n",Sigma*1e-6,Sigma_Max*1e-6);
-// //    Printf_CALC(Sigma/Sigma_Max,factor,true);
 // //
-// //    printf("Check 2\n");
 // //    double Lplate = M_PI*Shell_D/Stiff_Vert_Items;
 // //    if(SNiP_II_23_p8_7(Lplate, Shell_D/2, Shell_THK, Sigma, Sigma_Max,true))
 // //    {
@@ -1800,7 +1462,6 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err er
 // //    {
 // //        double SigmaCr_SNiP;
 // //        SNiP_II_23_p8_5(Shell_D/2,Shell_THK,Sigma,Sigma_Max,SigmaCr_SNiP);
-// //        Printf_CALC(Sigma/SigmaCr_SNiP,factor,true);
 // //    }
 // //
 // //
