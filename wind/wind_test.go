@@ -275,3 +275,23 @@ func ExampleGraphB14() {
 	// | 1.0e-03 | 0.6000 0.6000 0.6000 0.6000 0.4000 0.4000 0.4000 0.4000
 	// | 1.0e-02 | 0.6000 0.6000 0.6000 0.6000 0.4000 0.4000 0.4000 0.4000
 }
+
+func ExampleNuPlate() {
+	var buf bytes.Buffer
+	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
+	fmt.Fprintf(w, "Table 11.7\n")
+	fmt.Fprintf(w, "Plate\tρ\tχ\n")
+	b, h, a := 1.0, 2.0, 3.0
+	for _, pl := range []Plate{ZOY, ZOX, XOY} {
+		ρ, χ := NuPlates(b, h, a, pl)
+		fmt.Fprintf(w, "%s\t%.2f\t%.2f\n", pl, ρ, χ)
+	}
+	w.Flush()
+	fmt.Fprintf(os.Stdout, "%s", buf.String())
+	// Output:
+	// Table 11.7
+	// Plate ρ    χ
+	// ZOY   1.00 2.00
+	// ZOX   1.20 2.00
+	// XOY   1.00 3.00
+}

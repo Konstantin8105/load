@@ -245,6 +245,28 @@ func FactorXi(ld LogDecriment, ε float64) (ξ float64) {
 
 // TODO: add godoc for all function
 
+type Plate string
+
+const (
+	ZOY Plate = "ZOY"
+	ZOX       = "ZOX"
+	XOY       = "XOY"
+)
+
+func NuPlates(b, h, a float64, pl Plate) (ρ, χ float64) {
+	switch pl {
+	case ZOY:
+		ρ, χ = b, h
+	case ZOX:
+		ρ, χ = 0.4*a, h
+	case XOY:
+		ρ, χ = b, a
+	default:
+		panic("not implemented")
+	}
+	return
+}
+
 func FactorNu(ρ, χ float64) (ν float64) {
 	// table 11.6
 
