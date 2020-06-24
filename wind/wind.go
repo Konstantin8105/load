@@ -131,6 +131,9 @@ func EffectiveHeigth(z, d, h float64, isTower bool) (ze float64) {
 	panic(fmt.Errorf("Not implemented %v %v %v", z, d, h))
 }
 
+// see 11.1.12
+const γf = 1.40
+
 func FactorKz(zone Zone, ze float64) (float64, error) {
 	// TODO: add error handling
 	// 	if !zone.IsValid() {
@@ -221,7 +224,7 @@ func FactorXi(ld LogDecriment, ε float64) (ξ float64) {
 
 // TODO: add godoc for all function
 
-func FactoNu(ρ, χ float64) (ν float64) {
+func FactorNu(ρ, χ float64) (ν float64) {
 	// table 11.6
 
 	const (
@@ -309,6 +312,28 @@ func FactoNu(ρ, χ float64) (ν float64) {
 				(ro[rowIndex]-ro[rowIndex-1])
 	}
 	return
+}
+
+// Реализованый алгоритм упрощенный, но в худшую сторону.
+func GraphB14(d, Δ, Re float64) (cx float64) {
+	defer func() {
+		// round
+		cx *= 1000.0
+		cxi := int64(cx)
+		cx = float64(cxi) / 1000.0
+	}()
+	if Re < 6.0e5 {
+		return 0.6
+	}
+	dd := Δ / d
+	if dd > 1e-3 {
+		return 0.4
+	}
+	if dd < 1e-5 {
+		return 0.2
+	}
+	ddp := math.Log10(dd)
+	return 0.2 + (0.4-0.2)*(ddp-(-5))/(-3-(-5))
 }
 
 //

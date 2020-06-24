@@ -129,7 +129,7 @@ func ExampleFactorNu() {
 	for _, ro := range []float64{0.1, 5, 10, 20, 40, 80, 160} {
 		fmt.Fprintf(w, "| %6.2f |", ro)
 		for _, xi := range []float64{5, 10, 20, 40, 80, 160, 350} {
-			v := FactoNu(ro, xi)
+			v := FactorNu(ro, xi)
 			fmt.Fprintf(w, "\t%.2f", v)
 		}
 		fmt.Fprintf(w, "\n")
@@ -138,7 +138,7 @@ func ExampleFactorNu() {
 	for _, ro := range []float64{0.1, 3, 5, 7, 10, 15, 20, 25, 40, 60, 80, 100, 160} {
 		fmt.Fprintf(w, "| %6.2f |", ro)
 		for _, xi := range []float64{5, 7, 10, 15, 20, 30, 40, 60, 80, 120, 160, 300, 350} {
-			v := FactoNu(ro, xi)
+			v := FactorNu(ro, xi)
 			fmt.Fprintf(w, "\t%.2f", v)
 		}
 		fmt.Fprintf(w, "\n")
@@ -168,4 +168,38 @@ func ExampleFactorNu() {
 	// |  80.00 | 0.63 0.63 0.63 0.62 0.61 0.60 0.59 0.57 0.56 0.54 0.51 0.46 0.44
 	// | 100.00 | 0.60 0.60 0.60 0.60 0.59 0.58 0.57 0.55 0.54 0.52 0.49 0.44 0.42
 	// | 160.00 | 0.53 0.53 0.53 0.53 0.52 0.51 0.50 0.48 0.47 0.45 0.44 0.40 0.38
+}
+
+func ExampleGraphB14() {
+	var buf bytes.Buffer
+	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
+	fmt.Fprintf(w, "Graph B14\n")
+	Res := []float64{1e5, 3e5, 4e5, 5e5, 6e5, 1e6, 1e7, 1e8}
+	fmt.Fprintf(w, "| %7s |", "-")
+	for _, re := range Res {
+		fmt.Fprintf(w, "\t%6.0e", re)
+	}
+	fmt.Fprintf(w, "\n")
+	for _, delta := range []float64{1e-6, 1e-5, 5e-5, 10e-5, 12e-5, 50e-5, 100e-5, 1e-2} {
+		fmt.Fprintf(w, "| %6.1e |", delta)
+		for _, re := range Res {
+			d := 1.4
+			cx := GraphB14(d, delta*d, re)
+			fmt.Fprintf(w, "\t%6.4f", cx)
+		}
+		fmt.Fprintf(w, "\n")
+	}
+	w.Flush()
+	fmt.Fprintf(os.Stdout, "%s", buf.String())
+	// Output:
+	// Graph B14
+	// |       - |  1e+05  3e+05  4e+05  5e+05  6e+05  1e+06  1e+07  1e+08
+	// | 1.0e-06 | 0.6000 0.6000 0.6000 0.6000 0.2000 0.2000 0.2000 0.2000
+	// | 1.0e-05 | 0.6000 0.6000 0.6000 0.6000 0.2000 0.2000 0.2000 0.2000
+	// | 5.0e-05 | 0.6000 0.6000 0.6000 0.6000 0.2690 0.2690 0.2690 0.2690
+	// | 1.0e-04 | 0.6000 0.6000 0.6000 0.6000 0.3000 0.3000 0.3000 0.3000
+	// | 1.2e-04 | 0.6000 0.6000 0.6000 0.6000 0.3070 0.3070 0.3070 0.3070
+	// | 5.0e-04 | 0.6000 0.6000 0.6000 0.6000 0.3690 0.3690 0.3690 0.3690
+	// | 1.0e-03 | 0.6000 0.6000 0.6000 0.6000 0.4000 0.4000 0.4000 0.4000
+	// | 1.0e-02 | 0.6000 0.6000 0.6000 0.6000 0.4000 0.4000 0.4000 0.4000
 }

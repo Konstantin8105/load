@@ -1,5 +1,33 @@
 package wind
 
+import "math"
+
+// see part B.1.11
+func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, ν float64, err error) {
+	// TODO : add error handling
+	ze := zg + d/2.0
+
+	// коэффициент подъемной силы сферы
+	if zg > d/2 {
+		cz = 0.0
+	} else {
+		cz = 0.6
+	}
+
+	Wo := float64(rg)
+	Kz, err := FactorKz(zone, ze)
+	if err != nil {
+		return
+	}
+	Re := 0.88 * d * math.Sqrt(Wo*Kz*γf) * 1e5
+	cx = GraphB14(d, Δ, Re)
+	ν = FactorNu(0.7*d, 0.7*d)
+
+	if zg < d/2.0 {
+		cx *= 1.6
+	}
+	return
+}
 
 // double SNiP2_01_07_Schema12b_Ce1(double angle, double h1, double d, )
 // {
@@ -199,50 +227,6 @@ package wind
 //     return Fi;
 // }
 //
-// double SNiP2_01_07_table6_K(double H, _Zone Zone)
-// {
-//     if(H>480)
-//     {
-//         print_name("Error in Height:SNiP2_01_07_table6_K");
-//         printf("Height = %.3f meter\n",H);
-//         FATAL();
-//     }
-//     double  Z[14] ={
-//         0  ,5  ,10 ,20 ,40 , 60,
-//         80 ,100,150,200,250,300,
-//         350,480};
-//     double K[42]=	{
-//         0.75,   0.50,	0.40 ,
-//         0.75, 	0.50 ,	0.40 ,
-//         1.00 ,	0.65 ,	0.40 ,
-//         1.25, 	0.85 ,	0.55 ,
-//         1.50 ,	1.10 ,	0.80 ,
-//         1.70 ,	1.30 ,	1.00 ,
-//         1.85 ,	1.45 ,	1.15 ,
-//         2.00 ,	1.60 ,	1.25 ,
-//         2.25 ,	1.90 ,	1.55 ,
-//         2.45 ,	2.10 ,	1.80 ,
-//         2.65 ,	2.30 ,	2.00 ,
-//         2.75 ,	2.50 ,	2.20 ,
-//         2.75 ,	2.75 ,	2.35 ,
-//         2.75 ,	2.75 ,	2.75};
-//     type_LLU i;
-//     type_LLU zone_coeff = 0;
-//     switch(Zone)
-//     {
-//         case _Zone_A: zone_coeff = 0; break;
-//         case _Zone_B: zone_coeff = 1; break;
-//         case _Zone_C: zone_coeff = 2; break;
-//     }
-//     for(i=0;i<14;i++)
-//     {
-//         if(H == Z[i]) return K[i*3 + zone_coeff];
-//         if(H <  Z[i]) break;
-//     }
-//     double K_linear = LinearInter(K[i*3+zone_coeff],Z[i],K[(i-1)*3+zone_coeff],Z[i-1],H);
-//     //return K[i*3+zone_coeff];
-//     return K_linear;
-// }
 //
 // double SNiP2_01_07_Table_19(double L, bool OUT = true)
 // {
@@ -311,69 +295,6 @@ package wind
 //        }
 //    }
 
-// class WindLoad
-// {
-// private:
-//     Array<double> *height;
-//     Array<double> *frequency;
-//     Wind_Zone zone;
-//     Wind_Log_Decriment Log_Decriment;
-//     double Wo;
-//     void Printf_K_Dzeta();
-//     void Add_Height();
-//     void CalculateC
-//                   (double XX, double YY);
-//     void CalculateFr
-//                   (double XX, double YY);
-// public:
-//     void CalculateCyl
-//                   (double Diameter, type_LLU NumberOfCutting, Array<double> *H, Array<double> *Hz,
-//                    double Wo,
-//                    Wind_Log_Decriment LD,
-//                    Wind_Zone Zone);
-//     void CalculateCyl
-//                   (MSH &mesh, *load,
-//                    double HeightMin,double HeightMax,double PositionX0,double PositionZ0,double precition,
-//                    double Diameter, type_LLU NumberOfCutting, Array<double> *Hz,
-//                    double Wo,
-//                    Wind_Log_Decriment LD,
-//                    Wind_Zone Zone,
-//                    UNIT_FORCE  uf,
-//                    UNIT_LENGHT ul
-//                    );
-//
-//     void CalculateConv
-//                   (double XX, double YY, Array<double> *H, Array<double> *Hz,
-//                    double Wo,
-//                    Wind_Log_Decriment LD,
-//                    Wind_Zone Zone);
-//     void CalculateConv
-//                   (MSH &mesh, *load,
-//                    Node n1, Node n2, double precition,
-//                    Array<double> *Hz,
-//                    double Wo,
-//                    Wind_Log_Decriment LD,
-//                    Wind_Zone Zone,
-//                    UNIT_FORCE  uf,
-//                    UNIT_LENGHT ul);
-//
-//     void CalculateFrame
-//                   (double XX, double YY, Array<double> *H, Array<double> *Hz,
-//                    double Wo,
-//                    Wind_Log_Decriment LD,
-//                    Wind_Zone Zone);
-//     void CalculateFrame
-//                   (MSH &mesh, _LOAD *load, Array<_MEMBER_PROPERTY>,
-//                    Array<double> *Hz,
-//                    double Wo,
-//                    Wind_Log_Decriment LD,
-//                    Wind_Zone Zone,
-//                    UNIT_FORCE  uf,
-//                    UNIT_LENGHT ul);
-//
-// };
-//
-//
 // void WindLoad::Add_Height()
 // {
 //     height->Sort(func);
@@ -1011,7 +932,7 @@ package wind
 //         Array<type_LLU> num_nodes  ;
 //         Array<type_LLU> num_element;
 //
-//         // Add to 
+//         // Add to
 //         LT.FT = FORCE_TYPE_ELEMENT;
 //         LT.FS = FORCE_SYSTEM_GLOBAL;
 //         LT.FD = FORCE_DIRECTION_X ;
@@ -1087,7 +1008,7 @@ package wind
 //             load[k].SLT.Add(LT);
 //         }
 //
-//         // Add to 
+//         // Add to
 //         LT.FT = FORCE_TYPE_ELEMENT;
 //         LT.FS = FORCE_SYSTEM_GLOBAL;
 //         LT.FD = FORCE_DIRECTION_Z ;
