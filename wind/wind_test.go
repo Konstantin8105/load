@@ -52,8 +52,8 @@ func ExampleNaturalFrequencyLimit() {
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
 	fmt.Fprintf(w, "natural frequency limit\n")
-	var ld30 LogDecriment = LogDecriment30
-	var ld15 LogDecriment = LogDecriment15
+	ld30 := LogDecriment30
+	ld15 := LogDecriment15
 	fmt.Fprintf(w, "flim,Hz\t%10s\t%10s\n", ld30.Name(), ld15.Name())
 	for _, wo := range ListWo() {
 		fl30, err := NaturalFrequencyLimit(wo, ld30)

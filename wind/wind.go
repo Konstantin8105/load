@@ -7,20 +7,22 @@ import (
 	"github.com/Konstantin8105/pow"
 )
 
+// Region is wind region. Ветровые районы (принимаются по карте 2 приложения Е)
 type Region float64
 
 // TODO : add unit
 const (
 	RegionIa  Region = 170.0
-	RegionI          = 230.0
-	RegionII         = 300.0
-	RegionIII        = 380.0
-	RegionIV         = 480.0
-	RegionV          = 600.0
-	RegionVI         = 730.0
-	RegionVII        = 850.0
+	RegionI   Region = 230.0
+	RegionII  Region = 300.0
+	RegionIII Region = 380.0
+	RegionIV  Region = 480.0
+	RegionV   Region = 600.0
+	RegionVI  Region = 730.0
+	RegionVII Region = 850.0
 )
 
+// ListWo is list of all wind regions
 func ListWo() []Region {
 	return []Region{
 		RegionIa,
@@ -34,6 +36,7 @@ func ListWo() []Region {
 	}
 }
 
+// Name of wind region
 func (wr Region) Name() string {
 	var name string
 	switch wr {
@@ -70,9 +73,9 @@ type Zone byte
 
 // add description
 const (
-	ZoneA = 'A'
-	ZoneB = 'B'
-	ZoneC = 'C'
+	ZoneA Zone = 'A'
+	ZoneB Zone = 'B'
+	ZoneC Zone = 'C'
 )
 
 func (z Zone) String() string {
@@ -102,13 +105,20 @@ func (z Zone) constants() (α, k10, ζ10 float64) {
 	return
 }
 
+// LogDecriment - Значение логарифмического декремента колебаний
 type LogDecriment float64
 
 const (
+	// LogDecriment15 для стальных сооружений, футерованных дымовых труб, 
+	// аппаратов колонного типа, в том числе на железобетонных постаментах
 	LogDecriment15 LogDecriment = 0.15
-	LogDecriment30              = 0.30
+
+	// LogDecriment30 для железобетонных и каменных сооружений, а также 
+	// для зданий со стальным каркасом при наличии ограждающих конструкций
+	LogDecriment30 LogDecriment = 0.30
 )
 
+// Name of log decriment
 func (ld LogDecriment) Name() string {
 	return fmt.Sprintf("δ = %.2f", float64(ld))
 }
@@ -149,7 +159,7 @@ func EffectiveHeigth(z, d, h float64, isTower bool) (ze float64) {
 	if 0 <= z && z <= d {
 		return d
 	}
-	panic(fmt.Errorf("Not implemented %v %v %v", z, d, h))
+	panic(fmt.Errorf("not implemented %v %v %v", z, d, h))
 }
 
 // see 11.1.12
@@ -249,8 +259,8 @@ type Plate string
 
 const (
 	ZOY Plate = "ZOY"
-	ZOX       = "ZOX"
-	XOY       = "XOY"
+	ZOX Plate = "ZOX"
+	XOY Plate = "XOY"
 )
 
 func NuPlates(b, h, a float64, pl Plate) (ρ, χ float64) {
