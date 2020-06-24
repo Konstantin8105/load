@@ -52,29 +52,33 @@ func ExampleNaturalFrequencyLimit() {
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
 	fmt.Fprintf(w, "natural frequency limit\n")
+	var ld30 LogDecriment = LogDecriment30
+	var ld15 LogDecriment = LogDecriment15
+	fmt.Fprintf(w, "flim,Hz\t%10s\t%10s\n", ld30.Name(), ld15.Name())
 	for _, wo := range ListWo() {
-		fl30, err := NaturalFrequencyLimit(wo, LogDecriment30)
+		fl30, err := NaturalFrequencyLimit(wo, ld30)
 		if err != nil {
 			panic(err)
 		}
-		fl15, err := NaturalFrequencyLimit(wo, LogDecriment15)
+		fl15, err := NaturalFrequencyLimit(wo, ld15)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Fprintf(w, "%3s\t%4.2f\t%4.2f\n", wo.Name(), fl30, fl15)
+		fmt.Fprintf(w, "%3s\t%10.2f\t%10.2f\n", wo.Name(), fl30, fl15)
 	}
 	w.Flush()
 	fmt.Fprintf(os.Stdout, "%s", buf.String())
 	// Output:
 	// natural frequency limit
-	//  Ia 0.85 2.60
-	//   I 0.95 2.90
-	//  II 1.10 3.40
-	// III 1.20 3.80
-	//  IV 1.40 4.30
-	//   V 1.60 5.00
-	//  VI 1.70 5.60
-	// VII 1.90 5.90
+	// flim,Hz   δ = 0.30   δ = 0.15
+	//  Ia           0.85       2.60
+	//   I           0.95       2.90
+	//  II           1.10       3.40
+	// III           1.20       3.80
+	//  IV           1.40       4.30
+	//   V           1.60       5.00
+	//  VI           1.70       5.60
+	// VII           1.90       5.90
 }
 
 func TestFactorXi(t *testing.T) {

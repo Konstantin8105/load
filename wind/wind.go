@@ -109,9 +109,13 @@ const (
 	LogDecriment30              = 0.30
 )
 
+func (ld LogDecriment) Name() string {
+	return fmt.Sprintf("δ = %.2f", float64(ld))
+}
+
 func (ld LogDecriment) String() string {
 	// TODO: add translation
-	return fmt.Sprintf("Wind log decriment: %.2f", float64(ld))
+	return fmt.Sprintf("Wind log decriment: %s", ld.Name())
 }
 
 // TODO : add code name
