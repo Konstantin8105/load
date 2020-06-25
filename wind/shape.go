@@ -1,6 +1,13 @@
 package wind
 
-import "math"
+import (
+	"bytes"
+	"fmt"
+	"io"
+	"math"
+	"os"
+	"text/tabwriter"
+)
 
 // see part B.1.11
 func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, Re, ν float64, err error) {
@@ -28,6 +35,194 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, Re, ν float64, er
 	}
 	return
 }
+
+// TODO : add stack
+
+type RectangleSide string
+
+const (
+	SideA RectangleSide = "A"
+	SideB RectangleSide = "B"
+	SideC RectangleSide = "C"
+	SideD RectangleSide = "D"
+	SideE RectangleSide = "E"
+)
+
+func ListRectangleSides() []RectangleSide {
+	return []RectangleSide{
+		SideA,
+		SideB,
+		SideC,
+		SideD,
+		SideE,
+	}
+}
+
+func (rs RectangleSide) Convert() Plate {
+	switch rs {
+	case SideA, SideB, SideC:
+		return ZOX
+	case SideD, SideE:
+		return ZOY
+	}
+	panic("not implemented")
+}
+
+func (rs RectangleSide) Value() float64 {
+	switch rs {
+	case SideA:
+		return -1.0
+	case SideB:
+		return -0.8
+	case SideC:
+		return -0.5
+	case SideD:
+		return +0.8
+	case SideE:
+		return -0.5
+	}
+	panic("not implemented")
+}
+
+func (rs RectangleSide) Name() string {
+	switch rs {
+	case SideA:
+		return "A"
+	case SideB:
+		return "B"
+	case SideC:
+		return "C"
+	case SideD:
+		return "D"
+	case SideE:
+		return "E"
+	}
+	panic("not implemented")
+}
+
+func (rs RectangleSide) String() string {
+	name := rs.Name()
+	return fmt.Sprintf("Side of rectangle: %s", name)
+}
+
+// see part B.1.2
+func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []float64) {
+	// generate height sections
+	var zs []float64
+	{
+		for z := 0.0; ; z += 5.0 {
+			isEnd := false
+			if z >= h {
+				isEnd = true
+				z = h
+			}
+			zs = append(zs, z)
+			if isEnd {
+				break
+			}
+		}
+	}
+
+	section := func(w io.Writer, z float64, side RectangleSide) (Wsum float64) {
+		separator := func() {
+			fmt.Fprintf(w, "\t|")
+		}
+
+		// separator
+		separator()
+
+		// side name
+		fmt.Fprintf(w, "\t%s", side.Name())
+		// Wo
+		Wo := float64(wr)
+		fmt.Fprintf(w, "\t%6.3f", z)
+		// Ze
+		ze := EffectiveHeigth(z, b, h, false) // is b or d
+		fmt.Fprintf(w, "\t%6.3f", ze)
+		// Kz
+		Kz, err := FactorKz(zone, ze)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Fprintf(w, "\t%6.3f", Kz)
+		// Zeta
+		ζ, err := FactorZeta(zone, ze)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Fprintf(w, "\t%6.3f", ζ)
+		// Xi
+		ξ := FactorXiHz(wr, zone, ld, z, hzs)
+		fmt.Fprintf(w, "\t%6.3f", ξ)
+		// separator
+		separator()
+
+		// Cx
+		cx := side.Value()
+		fmt.Fprintf(w, "\t%4.1f", cx)
+		// ν
+		pl := side.Convert()
+		ρ, χ := NuPlates(b, h, d, pl)
+		ν := FactorNu(ρ, χ)
+		fmt.Fprintf(w, "\t%6.3f", ρ)
+		fmt.Fprintf(w, "\t%6.3f", χ)
+		fmt.Fprintf(w, "\t%6.3f", ν)
+		// Wm
+		Wm := Wo * Kz * cx
+		fmt.Fprintf(w, "\t%6.1f", Wm)
+		// Wp
+		Wp := Wm * ξ * ζ * ν
+		fmt.Fprintf(w, "\t%6.1f", Wp)
+		// Wsum
+		Wsum = Wm + Wp
+		fmt.Fprintf(w, "\t%6.1f", Wsum)
+		// separator
+		separator()
+
+		fmt.Fprintf(w, "\n")
+		return
+	}
+
+	// TODO: for 2 directions
+	var buf bytes.Buffer
+	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
+	fmt.Fprintf(w, "%s\n", zone.String())
+	fmt.Fprintf(w, "%s\n", wr.String())
+
+	fmt.Fprintf(w, "\t|\tside\tz\tze\tKz\tζ\tξ\t|\tcx\tρ\tχ\tν\tWm\tWp\tWsum\t|\n")
+	for _, z := range zs {
+		fmt.Fprintf(w, "\t|\t \t \t \t \t \t \t|\t \t \t \t \t \t \t \t|\n")
+		for _, side := range ListRectangleSides() {
+			section(w, z, side)
+		}
+	}
+	w.Flush()
+	fmt.Fprintf(os.Stdout, "%s", buf.String())
+
+	// Width
+	// 			var width float64
+	// 			e := math.Min(b, 2*h)
+	// 			switch side {
+	// 			case SideA:
+	// 				width = e / 5.0
+	// 			case SideB:
+	// 				width = e - e/5.0
+	// 			case SideC:
+	// 				width = math.Min(0.0, d-e)
+	// 			case SideD:
+	// 				width = b
+	// 			case SideE:
+	// 				width = b
+	// 			default:
+	// 				panic("not implemented")
+	// 			}
+	// 			fmt.Fprintf(w, "\t%6.3f", width)
+
+}
+
+// TODO : add cylinder
+
+// TODO: add integration test
 
 // double SNiP2_01_07_Schema12b_Ce1(double angle, double h1, double d, )
 // {

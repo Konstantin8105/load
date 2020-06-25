@@ -3,6 +3,7 @@ package wind
 import (
 	"fmt"
 	"math"
+	"sort"
 
 	"github.com/Konstantin8105/pow"
 )
@@ -236,8 +237,47 @@ func NaturalFrequencyLimit(wr Region, ld LogDecriment) (float64, error) {
 	return -1.0, fmt.Errorf("not found")
 }
 
+func FactorXiHz(wr Region, zone Zone, ld LogDecriment, z float64, hzs []float64) (ξ float64) {
+	flim, err := NaturalFrequencyLimit(wr, ld)
+	if err != nil {
+		panic(err)
+	}
+	// sort
+	sort.Float64s(hzs)
+	// filter of natural frequency
+	for i := range hzs {
+		if flim < hzs[i] {
+			if i == 0 {
+				hzs = hzs[:0]
+			} else {
+				hzs = hzs[:i-1]
+			}
+			break
+		}
+	}
+	Kz, err := FactorKz(zone, z)
+	if err != nil {
+		panic(err)
+	}
+	Wo := float64(wr)
+	ξ = 1.0 // by default if flim < f
+	if len(hzs) > 0 {
+		ξ = 0.0 // reset value
+		for _, hz := range hzs {
+			ε := math.Sqrt(Wo*Kz*γf) / (940.0 * hz) // see formula 11.8
+			ξi := factorXi(ld, ε)
+			ξ += pow.E2(ξi)
+		}
+		ξ = math.Sqrt(ξ)
+	}
+	if ξ < 0.8 {
+		panic(fmt.Errorf("%v %v %v",hzs,flim,ξ))
+	}
+	return
+}
+
 // pic 11.1
-func FactorXi(ld LogDecriment, ε float64) (ξ float64) {
+func factorXi(ld LogDecriment, ε float64) (ξ float64) {
 	switch ld {
 	case LogDecriment30:
 		return 189848.0*pow.En(ε, 6) +

@@ -114,8 +114,8 @@ func TestFactorXi(t *testing.T) {
 	}
 	for index, tc := range tcs {
 		t.Run(fmt.Sprintf("%d", index), func(t *testing.T) {
-			xi30 := FactorXi(LogDecriment30, tc.e)
-			xi15 := FactorXi(LogDecriment15, tc.e)
+			xi30 := factorXi(LogDecriment30, tc.e)
+			xi15 := factorXi(LogDecriment15, tc.e)
 			if err := isOk(xi30, tc.xi30, t); err != nil {
 				t.Errorf("xi30 : %v", err)
 			}
