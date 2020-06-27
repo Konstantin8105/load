@@ -220,19 +220,35 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []flo
 		return
 	}
 
+	// average value
+	type average struct{ center, value float64 }
+	av := make([]average, len(ListRectangleSides()))
+
 	// TODO : add unit
 	fmt.Fprintf(w, "\t|\tside\tz\tze\tKz\tζ\tξ\t|\tcx\tρ\tχ\tν\tWm\tWp\tWsum\t|\n")
 	for _, side := range ListRectangleSides() {
 		fmt.Fprintf(w, "\t|\t \t \t \t \t \t \t|\t \t \t \t \t \t \t \t|\n")
-		for _, z := range zs {
-			section(w, z, side)
+		wmLast := 0.0
+		for index, z := range zs {
+			wm := section(w, z, side)
+			if index == 0 {
+				wmLast = wm
+				continue
+			}
+			// local wm
+			zLast := zs[index-1]
+			area := (wmLast + wm) / 2.0 * (z - zLast)
+			center := zLast + (z-zLast)/3.0*(wmLast+2.0*wm)/(wmLast+wm)
+			// add to global wm
+			av[side].center = (center*area + av[side].center*av[side].value) /
+				(area + av[side].value)
+			av[side].value += area
+			wmLast = wm
 		}
 	}
 
-	// Width
-	fmt.Fprintf(w, "\n")
-	fmt.Fprintf(w, "\tside\twidth, m\n")
-	for _, side := range ListRectangleSides() {
+	// width
+	width := func(side RectangleSide) float64 {
 		var width float64
 		e := math.Min(b, 2*h)
 		switch side {
@@ -249,7 +265,46 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []flo
 		default:
 			panic("not implemented")
 		}
-		fmt.Fprintf(w, "\t%6s\t%6.3f\n", side.Name(), width)
+		return width
+	}
+
+	fmt.Fprintf(w, "\n")
+	fmt.Fprintf(w, "|\tside\t|\twidth\t|\tWm on zero\t|\tWm on top\t|\tCenter of Wm\t|\tWind average\t|\n")
+	fmt.Fprintf(w, "|\t\t|\t\t|\televation\t|\televation\t|\t\t|\th/2 elev.\t|\n")
+	fmt.Fprintf(w, "|\t\t|\tmeter\t|\tPa\t|\tPa\t|\tmeter\t|\tPa\t|\n")
+	fmt.Fprintf(w, "|\t\t|\t\t|\t\t|\t\t|\t\t|\t\t|\n")
+	for _, side := range ListRectangleSides() {
+		// calculate trapezoid wind load
+		//	1. area   = (w0+w1)/2 * h
+		//	2. center = h/3*(w0+2*w1)/(w0+w1)
+		// solving system:
+		//	1. w0+w1   = area/h*2
+		//	2. w0+2*w1 = center*3/h*(w0+w1)
+		// combile 1 and 2:
+		//	1. w0+w1   = area/h*2
+		//  3. w0+2*w1 = center*3/h*area/h*2
+		// rename rigth parts:
+		//	1. w0+w1   = r1
+		//  3. w0+2*w1 = r2
+		// solving:
+		//	w0 = r1 - w1
+		//	r1 - w1 + 2*w1 = r2
+		//	w1 = r2 - r1
+		//	w0 = r1 - w1 = r1 - r2 + r1 = 2*r1 - r2
+		r1 := av[side].value / h * 2.0
+		r2 := av[side].center * 3.0 / h * r1
+		w0 := 2*r1 - r2
+		w1 := r2 - r1
+
+		// calculate uniform wind load
+		// with same moment on ground
+		M := av[side].value * av[side].center
+		waverage := M / (h*h/2.0)
+
+		// width
+		wd := width(side)
+		fmt.Fprintf(w, "|\t%6s\t|\t%6.3f\t|\t%8.1f\t|\t%8.1f\t|\t%6.3f\t|\t%8.1f\t|\n",
+			side.Name(), wd, w0, w1, av[side].center, waverage)
 	}
 
 	w.Flush()
