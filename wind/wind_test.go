@@ -276,6 +276,38 @@ func ExampleGraphB14() {
 	// | 1.0e-02 | 0.6000 0.6000 0.6000 0.6000 0.4000 0.4000 0.4000 0.4000
 }
 
+func ExampleGraphB15() {
+	var buf bytes.Buffer
+	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
+	fmt.Fprintf(w, "Graph B15\n")
+	Res := []float64{1e4, 1e5, 2e5, 4e5, 6e5, 8e5, 1e6, 5e6, 1e7, 5e7, 1e8}
+	fmt.Fprintf(w, "| %7s |", "-")
+	for _, re := range Res {
+		fmt.Fprintf(w, "\t%6.0e", re)
+	}
+	fmt.Fprintf(w, "\n")
+	for _, delta := range []float64{1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6} {
+		fmt.Fprintf(w, "| %6.1e |", delta)
+		for _, re := range Res {
+			d := 1.4
+			cx := GraphB15(d, delta*d, re)
+			fmt.Fprintf(w, "\t%6.4f", cx)
+		}
+		fmt.Fprintf(w, "\n")
+	}
+	w.Flush()
+	fmt.Fprintf(os.Stdout, "%s", buf.String())
+	// Output:
+	// Graph B15
+	// |       - |  1e+04  1e+05  2e+05  4e+05  6e+05  8e+05  1e+06  5e+06  1e+07  5e+07  1e+08
+	// | 1.0e-01 | 1.2000 1.2000 1.2000 1.2000 1.2000 1.2000 1.2000 1.2000 1.2000 1.2000 1.2000
+	// | 1.0e-02 | 1.2000 1.2000 0.9484 0.9891 1.0099 1.0232 1.0328 1.0819 1.0922 1.0906 1.0790
+	// | 1.0e-03 | 1.2000 1.2000 0.7067 0.7721 0.8063 0.8287 0.8450 0.9360 0.9605 0.9837 0.9790
+	// | 1.0e-04 | 1.2000 1.2000 0.5734 0.5551 0.6027 0.6342 0.6573 0.7900 0.8289 0.8767 0.8790
+	// | 1.0e-05 | 1.2000 1.2000 0.5734 0.4000 0.4000 0.4396 0.4695 0.6441 0.6973 0.7698 0.7790
+	// | 1.0e-06 | 1.2000 1.2000 0.5734 0.4000 0.4000 0.4396 0.4695 0.6441 0.6973 0.7698 0.7790
+}
+
 func ExampleNuPlate() {
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)

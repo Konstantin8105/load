@@ -25,9 +25,10 @@ func ExampleRectangle() {
 	// Natural frequency : [1.393]
 	//
 	// Dimensions:
-	// b  5.380 m
-	// d  7.320 m
-	// h 18.965 m
+	// b   5.380 m
+	// d   7.320 m
+	// zo  0.000 m
+	// h  18.965 m
 	//
 	// | side z      ze     Kz     ζ      ξ      | cx   ρ      χ      ν      Wm     Wp     Wsum   |
 	// |                                         |                                                |

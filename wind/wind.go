@@ -449,6 +449,41 @@ func GraphB14(d, Δ, Re float64) (cx float64) {
 	return 0.2 + (0.4-0.2)*(ddp-(-5))/(-3-(-5))
 }
 
+func GraphB15(d, Δ, Re float64) (Cx float64) {
+	defer func() {
+		if Cx > 1.2 {
+			Cx = 1.2
+		}
+		if Cx < 0.4 {
+			Cx = 0.4
+		}
+	}()
+
+	if Re < 1e5 {
+		return 1.2
+	}
+
+	x := math.Log10(Re)
+	Δd := Δ / d
+	if Δd < 1e-5 {
+		Δd = 1e-5
+	}
+	if Δd > 1e-2 {
+		return 1.2
+	}
+
+	Cx = 0.4
+	if Re < 3.0e5 {
+		Cx = math.Max(Cx, 3.01192*pow.E2(x)-33.6354*x+94.2379)
+	}
+
+	Cx5 := -0.0730890*pow.E2(x) + 1.178010*x - 3.967380
+	Cx2 := -0.0362124*pow.E2(x) + 0.530084*x - 0.844029
+	power := math.Log10(Δd) // for example: -5...-2
+
+	return math.Max(Cx, Cx5+(Cx2-Cx5)*(power-(-5))/(-2-(-5)))
+}
+
 type Struhale int
 
 const (

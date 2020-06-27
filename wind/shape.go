@@ -9,6 +9,8 @@ import (
 	"text/tabwriter"
 )
 
+// TODO: add frame
+
 // see part B.1.11
 func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, Re, ν float64, err error) {
 	// TODO : add error handling
@@ -35,6 +37,18 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, Re, ν float64, er
 	}
 	return
 }
+
+// func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float64, hzs []float64) {
+// 
+// 	δ := Δ/d
+// 
+// 	if Cβ > 0 {
+// 		Kλ1 = 1.0
+// 	} else {
+// 		Kλ1 = Kλ
+// 	}
+// 	Ce1 := Kλ1 * Cβ
+// }
 
 // TODO : add stack
 
@@ -148,6 +162,7 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 	fmt.Fprintf(w, "Dimensions:\n")
 	fmt.Fprintf(w, "\tb\t%6.3f m\n", b)
 	fmt.Fprintf(w, "\td\t%6.3f m\n", d)
+	fmt.Fprintf(w, "\tzo\t%6.3f m\n", zo)
 	fmt.Fprintf(w, "\th\t%6.3f m\n", h)
 	fmt.Fprintf(w, "\n")
 
@@ -335,7 +350,6 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 	fmt.Fprintf(os.Stdout, "%s", buf.String())
 }
 
-
 // TODO : add cylinder
 
 // TODO: add integration test
@@ -473,7 +487,6 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 //
 //
 //
-
 
 //
 // double SNiP2_01_07_actual_Formula11_11_Vcr(double f, double d, _Struhale St, bool OUT=false)
