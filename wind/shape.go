@@ -253,9 +253,9 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []flo
 		e := math.Min(b, 2*h)
 		switch side {
 		case SideA:
-			width = e / 5.0
+			width = math.Min(e/5.0, d)
 		case SideB:
-			width = e - e/5.0
+			width = math.Max(math.Min(e,d)-e/5.0, 0.0)
 		case SideC:
 			width = math.Max(0.0, d-e)
 		case SideD:
@@ -269,15 +269,15 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []flo
 	}
 
 	fmt.Fprintf(w, `
-   Wm on top    |----------->             |--------->
+   Ws on top    |----------->             |--------->
                 |          /              |         |
-                |--------->     W average |--------->
+                |--------->    Ws average |--------->
                 |        /                |         |
-   Wm on zero   |------->                 |--------->
+   Ws on zero   |------->                 |--------->
               --------------- ground ------------------
 `)
 	fmt.Fprintf(w, "\n")
-	fmt.Fprintf(w, "|\tside\t|\twidth\t|\tWm on zero\t|\tWm on top\t|\tCenter of Wm\t|\tWind average\t|\n")
+	fmt.Fprintf(w, "|\tside\t|\twidth\t|\tWs on zero\t|\tWs on top\t|\tCenter of Ws\t|\tWind average\t|\n")
 	fmt.Fprintf(w, "|\t\t|\t\t|\televation\t|\televation\t|\t\t|\th/2 elev.\t|\n")
 	fmt.Fprintf(w, "|\t\t|\tmeter\t|\tPa\t|\tPa\t|\tmeter\t|\tPa\t|\n")
 	fmt.Fprintf(w, "|\t\t|\t\t|\t\t|\t\t|\t\t|\t\t|\n")
@@ -307,11 +307,17 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []flo
 		// calculate uniform wind load
 		// with same moment on ground
 		M := av[side].value * av[side].center
-		waverage := M / (h*h/2.0)
+		waverage := M / (h * h / 2.0)
 
 		// width
 		wd := width(side)
-		fmt.Fprintf(w, "|\t%6s\t|\t%6.3f\t|\t%8.1f\t|\t%8.1f\t|\t%6.3f\t|\t%8.1f\t|\n",
+		if wd == 0.0 {
+			w0 = 0
+			w1 = 0
+			av[side].center = 0
+			waverage = 0
+		}
+		fmt.Fprintf(w, "|\t%6s\t|\t%6.3f\t|\t%+8.1f\t|\t%+8.1f\t|\t%6.3f\t|\t%+8.1f\t|\n",
 			side.Name(), wd, w0, w1, av[side].center, waverage)
 	}
 
