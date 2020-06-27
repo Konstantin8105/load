@@ -268,6 +268,14 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []flo
 		return width
 	}
 
+	fmt.Fprintf(w, `
+   Wm on top    |----------->             |--------->
+                |          /              |         |
+                |--------->     W average |--------->
+                |        /                |         |
+   Wm on zero   |------->                 |--------->
+              --------------- ground ------------------
+`)
 	fmt.Fprintf(w, "\n")
 	fmt.Fprintf(w, "|\tside\t|\twidth\t|\tWm on zero\t|\tWm on top\t|\tCenter of Wm\t|\tWind average\t|\n")
 	fmt.Fprintf(w, "|\t\t|\t\t|\televation\t|\televation\t|\t\t|\th/2 elev.\t|\n")
