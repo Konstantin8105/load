@@ -38,14 +38,14 @@ func Sphere(zone Zone, rg Region, zg, d, Δ float64) (cx, cz, Re, ν float64, er
 
 // TODO : add stack
 
-type RectangleSide string
+type RectangleSide int
 
 const (
-	SideA RectangleSide = "A"
-	SideB RectangleSide = "B"
-	SideC RectangleSide = "C"
-	SideD RectangleSide = "D"
-	SideE RectangleSide = "E"
+	SideA RectangleSide = iota
+	SideB
+	SideC
+	SideD
+	SideE
 )
 
 func ListRectangleSides() []RectangleSide {
@@ -123,6 +123,37 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []flo
 		}
 	}
 
+	// TODO: for 2 directions
+	var buf bytes.Buffer
+	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
+	fmt.Fprintf(w, `Sketch:
+
+          |<------- d --------->|
+          |                     |
+          ***********************------
+          *                     *    |
+  Wind    *                     *    |
+ ----->   *                     *    |
+        D *                     * E  b
+          *                     *    |
+          *                     *    |
+          *                     *    |
+          ***********************------
+          |  A  |    B    |  C  |
+
+`)
+
+	fmt.Fprintf(w, "%s\n", zone.String())
+	fmt.Fprintf(w, "%s\n", wr.String())
+	fmt.Fprintf(w, "%s\n", ld.String())
+	fmt.Fprintf(w, "Natural frequency : %v\n", hzs)
+	fmt.Fprintf(w, "\n")
+	fmt.Fprintf(w, "Dimensions:\n")
+	fmt.Fprintf(w, "\tb\t%6.3f m\n", b)
+	fmt.Fprintf(w, "\td\t%6.3f m\n", d)
+	fmt.Fprintf(w, "\th\t%6.3f m\n", h)
+	fmt.Fprintf(w, "\n")
+
 	section := func(w io.Writer, z float64, side RectangleSide) (Wsum float64) {
 		separator := func() {
 			fmt.Fprintf(w, "\t|")
@@ -137,7 +168,13 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []flo
 		Wo := float64(wr)
 		fmt.Fprintf(w, "\t%6.3f", z)
 		// Ze
-		ze := EffectiveHeigth(z, b, h, false) // is b or d
+		var ze float64
+		switch side.Convert() {
+		case ZOX:
+			ze = EffectiveHeigth(z, d, h, false)
+		case ZOY:
+			ze = EffectiveHeigth(z, b, h, false)
+		}
 		fmt.Fprintf(w, "\t%6.3f", ze)
 		// Kz
 		Kz, err := FactorKz(zone, ze)
@@ -183,41 +220,40 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []flo
 		return
 	}
 
-	// TODO: for 2 directions
-	var buf bytes.Buffer
-	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
-	fmt.Fprintf(w, "%s\n", zone.String())
-	fmt.Fprintf(w, "%s\n", wr.String())
-
+	// TODO : add unit
 	fmt.Fprintf(w, "\t|\tside\tz\tze\tKz\tζ\tξ\t|\tcx\tρ\tχ\tν\tWm\tWp\tWsum\t|\n")
-	for _, z := range zs {
+	for _, side := range ListRectangleSides() {
 		fmt.Fprintf(w, "\t|\t \t \t \t \t \t \t|\t \t \t \t \t \t \t \t|\n")
-		for _, side := range ListRectangleSides() {
+		for _, z := range zs {
 			section(w, z, side)
 		}
 	}
-	w.Flush()
-	fmt.Fprintf(os.Stdout, "%s", buf.String())
 
 	// Width
-	// 			var width float64
-	// 			e := math.Min(b, 2*h)
-	// 			switch side {
-	// 			case SideA:
-	// 				width = e / 5.0
-	// 			case SideB:
-	// 				width = e - e/5.0
-	// 			case SideC:
-	// 				width = math.Min(0.0, d-e)
-	// 			case SideD:
-	// 				width = b
-	// 			case SideE:
-	// 				width = b
-	// 			default:
-	// 				panic("not implemented")
-	// 			}
-	// 			fmt.Fprintf(w, "\t%6.3f", width)
+	fmt.Fprintf(w, "\n")
+	fmt.Fprintf(w, "\tside\twidth, m\n")
+	for _, side := range ListRectangleSides() {
+		var width float64
+		e := math.Min(b, 2*h)
+		switch side {
+		case SideA:
+			width = e / 5.0
+		case SideB:
+			width = e - e/5.0
+		case SideC:
+			width = math.Max(0.0, d-e)
+		case SideD:
+			width = b
+		case SideE:
+			width = b
+		default:
+			panic("not implemented")
+		}
+		fmt.Fprintf(w, "\t%6s\t%6.3f\n", side.Name(), width)
+	}
 
+	w.Flush()
+	fmt.Fprintf(os.Stdout, "%s", buf.String())
 }
 
 // TODO : add cylinder

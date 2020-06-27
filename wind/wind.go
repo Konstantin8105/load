@@ -134,7 +134,7 @@ func (ld LogDecriment) Name() string {
 
 func (ld LogDecriment) String() string {
 	// TODO: add translation
-	return fmt.Sprintf("Wind log decriment: %s", ld.Name())
+	return fmt.Sprintf("Wind log decrement: %s", ld.Name())
 }
 
 // TODO : add code name
@@ -238,23 +238,32 @@ func NaturalFrequencyLimit(wr Region, ld LogDecriment) (float64, error) {
 }
 
 func FactorXiHz(wr Region, zone Zone, ld LogDecriment, z float64, hzs []float64) (ξ float64) {
+	defer func() {
+		// round
+		ξ *= 1000.0
+		ξi := int64(ξ)
+		ξ = float64(ξi) / 1000.0
+	}()
 	flim, err := NaturalFrequencyLimit(wr, ld)
 	if err != nil {
 		panic(err)
 	}
-	// sort
-	sort.Float64s(hzs)
 	// filter of natural frequency
-	for i := range hzs {
-		if flim < hzs[i] {
-			if i == 0 {
-				hzs = hzs[:0]
-			} else {
-				hzs = hzs[:i-1]
+	{
+		s := make([]float64, len(hzs))
+		copy(s, hzs)
+		hzs = s
+	again:
+		for i := range hzs {
+			if flim < hzs[i] {
+				hzs = append(hzs[:i], hzs[i+1:]...)
+				goto again
 			}
-			break
 		}
 	}
+	// sort
+	sort.Float64s(hzs)
+	// Kz
 	Kz, err := FactorKz(zone, z)
 	if err != nil {
 		panic(err)
@@ -271,7 +280,7 @@ func FactorXiHz(wr Region, zone Zone, ld LogDecriment, z float64, hzs []float64)
 		ξ = math.Sqrt(ξ)
 	}
 	if ξ < 0.8 {
-		panic(fmt.Errorf("%v %v %v",hzs,flim,ξ))
+		panic(fmt.Errorf("%v %v %v", hzs, flim, ξ))
 	}
 	return
 }
