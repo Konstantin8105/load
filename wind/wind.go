@@ -446,33 +446,27 @@ func GraphB14(d, Δ, Re float64) (cx float64) {
 	return 0.2 + (0.4-0.2)*(ddp-(-5))/(-3-(-5))
 }
 
-//
-// double SNiP2_01_07_p6_7b_Eta(double Wo, double Frequency, )
-// {
-//     double eta = sqrt(1.4 * Wo)/(940. * Frequency);
-//     return eta;
-// };
-//
-// double SNiP2_01_07_Formula6_Wn( double Wo, double C, double K, bool OUT=false)
-// {
-//     double Wm = K * C * Wo ;
-//     return Wm;
-// };
-//
-// double SNiP2_01_07_Formula9_Wp( double Wm, double Dzeta, double Ksi, double Eps, bool OUT=false)
-// {
-//     double Wp = Wm * Dzeta * Ksi * Eps;
-//     return Wp;
-// };
-//
-// double SNiP2_01_07_Formula7_Vmax(double Wo, bool OUT=false)
-// {
-//     double Vmax = sqrt(Wo/0.61);
-//     return Vmax;
-// }
-//
-// double SNiP2_01_07_actual_Formula11_13_Vmax(double Wo, double K, bool OUT=false)
-// {
-//     double Vmax = 1.3*sqrt(Wo*K);
-//     return Vmax;
-// }
+type Struhale int
+
+const (
+	StCylinder Struhale = iota
+	StRectangle
+)
+
+func (st Struhale) Value() float64 {
+	switch st {
+	case StCylinder:
+		return 0.2
+	case StRectangle:
+		return 0.11
+	}
+	panic("not implemented")
+}
+
+func (st Struhale) Name() string {
+	return fmt.Sprintf("St = %4.2f", st.Value())
+}
+
+func (st Struhale) String() string {
+	return "Struhale number: " + st.Name()
+}

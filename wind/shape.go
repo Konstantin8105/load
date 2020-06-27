@@ -335,6 +335,7 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 	fmt.Fprintf(os.Stdout, "%s", buf.String())
 }
 
+
 // TODO : add cylinder
 
 // TODO: add integration test
@@ -472,71 +473,13 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 //
 //
 //
-// enum _Struhale{_Struhale_Cylinder,_Struhale_Rectangle};
-// void Printf(_Struhale St)
-// {
-//     switch(St)
-//     {
-//         case _Struhale_Cylinder:
-//             printf("Number of Strahale 0,2\n");
-//             break;
-//         case _Struhale_Rectangle:
-//             printf("Number of Strahale 0,11\n");
-//             break;
-//         default:
-//             print_name("Number of Strahale is not correct");
-//             FATAL();
-//     }
-// }
+
+
 //
 // double SNiP2_01_07_actual_Formula11_11_Vcr(double f, double d, _Struhale St, bool OUT=false)
 // {
-//     double dSt = 0.0;
-//     switch(St)
-//     {
-//         case _Struhale_Cylinder :  dSt = 0.20; break;
-//         case _Struhale_Rectangle:  dSt = 0.11; break;
-//         default:
-//             print_name("Number of Strahale is not correct");
-//             FATAL();
-//     }
 //     double Vcr = f*d/dSt;
-//     if(OUT)
-//     {
-//         Printf(St);
-//         printf("Vcr = f*d/St = %.3f*%.3f/%.2f = %.2f m/s\n",f,d,dSt,Vcr);
-//     }
-//     return Vcr;
 // }
-//
-// bool SNiP2_01_07_actual_Formula11_12_Check(double Vcr, double Vmax, bool OUT = false)
-// {
-//     bool check = true;
-//     if(Vcr > Vmax) check = false;
-//     else check = true;
-//     if(OUT)
-//     {
-//         printf("Vcr > Vmax\n%.2f > %.2f - ",Vcr,Vmax);
-//         if(check) printf("Check case with rezonce\n");
-//         else      printf("No rezonance\n");
-//     }
-//     return check;
-// }
-//
-// double SNiP2_01_07_actual_FormulaD_2_1_F_cylinder
-//             (double Vcr, double fi, double d, double delta,
-//              bool OUT=false)
-// {
-//     double Cy = 0.3;
-//     double Fi = 0.75*CONST_M_PI*pow(Vcr,2.)*Cy*fi*d/delta;
-//     if(OUT)
-//     {
-//         printf("Fi = 0.75*PI*Vcr^2*Cy*fi*d/delta=0.75*%.3f*%.3f^2*%.3f*%.3f*%.3f/%.3f=%.3fN/m\n",
-//                CONST_M_PI,Vcr,Cy,fi,d,delta,Fi);
-//     }
-//     return Fi;
-// }
-//
 //
 // double SNiP2_01_07_Table_19(double L, bool OUT = true)
 // {
@@ -552,8 +495,6 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 //     }
 //     return fu;
 // }
-//
-
 //
 //    type_LLU i;
 //    for( i=0; i < (vn-1) ; i++ )
@@ -930,23 +871,6 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 //         printf("Area of All Plates: %5.3f m2\n\n",AreaAllPates);
 //     }
 // };
-//
-// void WindLoad::CalculateConv
-//                    (double XX, double YY, Array<double> *H, Array<double> *Hz,
-//                     double _Wo,
-//                     Wind_Log_Decriment LD,
-//                     Wind_Zone Zone)
-// {
-//     height    = H;
-//     Wo        = _Wo;
-//     zone      = Zone;
-//     Log_Decriment = LD;
-//     frequency = Hz;
-//     printf("\nWind with convection X\n");
-//     CalculateC(XX,YY);
-//     printf("\nWind with convection Y\n");
-//     CalculateC(YY,XX);
-// }
 //
 // void WindLoad::CalculateC(double XX, double YY)
 // {
@@ -1732,48 +1656,3 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 //
 //
 //
-//
-// //class PLATE
-// //{
-// //    double R, THK;
-// //    double a, b;
-// //    PLATE(){R = THK = a = b = 0};
-// //    double SigmaCritical(bool OUT)
-// //    {
-// //
-// //    }
-// //}
-//
-// //double ShellWithStiffeners(
-// //     double Sigma,
-// //     double Sigma_Max,
-// //     double Shell_D,
-// //     double Shell_THK,
-// //     double Shell_H,
-// //
-// //     double Stiff_Vert_Area,
-// //     double Stiff_Vert_Jx,
-// //     double Stiff_Vert_Ymax,
-// //     type_LLU Stiff_Vert_Items,
-// //
-// //     type_LLU Stiff_Horiz_Items
-// //     )
-// //{
-// //    double factor = 0;
-// //    //double E = 2.06e11;
-// //
-// //
-// //    double Lplate = M_PI*Shell_D/Stiff_Vert_Items;
-// //    if(SNiP_II_23_p8_7(Lplate, Shell_D/2, Shell_THK, Sigma, Sigma_Max,true))
-// //    {
-// //        //SNiP_II_23_p8_7(Lplate, Shell_D/2, Shell_THK, Sigma, Sigma_Max,true);
-// //    }
-// //    else
-// //    {
-// //        double SigmaCr_SNiP;
-// //        SNiP_II_23_p8_5(Shell_D/2,Shell_THK,Sigma,Sigma_Max,SigmaCr_SNiP);
-// //    }
-// //
-// //
-// //    return factor;
-// //}
