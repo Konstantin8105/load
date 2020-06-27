@@ -237,7 +237,7 @@ func NaturalFrequencyLimit(wr Region, ld LogDecriment) (float64, error) {
 	return -1.0, fmt.Errorf("not found")
 }
 
-func FactorXiHz(wr Region, zone Zone, ld LogDecriment, z float64, hzs []float64) (ξ float64) {
+func FactorXiHz(wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float64, hzs []float64) (ξ float64) {
 	defer func() {
 		// round
 		ξ *= 1000.0
@@ -264,6 +264,9 @@ func FactorXiHz(wr Region, zone Zone, ld LogDecriment, z float64, hzs []float64)
 	// sort
 	sort.Float64s(hzs)
 	// Kz
+	if isBuilding {
+		z = 0.8 * z
+	}
 	Kz, err := FactorKz(zone, z)
 	if err != nil {
 		panic(err)

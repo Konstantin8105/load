@@ -186,7 +186,7 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 		}
 		fmt.Fprintf(w, "\t%6.3f", ζ)
 		// Xi
-		ξ := FactorXiHz(wr, zone, ld, z, hzs)
+		ξ := FactorXiHz(wr, zone, ld, true, h, hzs)
 		fmt.Fprintf(w, "\t%6.3f", ξ)
 		// separator
 		separator()
