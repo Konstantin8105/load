@@ -1,7 +1,7 @@
 package wind
 
 func ExampleRectangle() {
-	Rectangle(ZoneA, RegionII, LogDecriment15, 5.38, 7.32, 18.965, []float64{1.393})
+	Rectangle(ZoneA, RegionII, LogDecriment15, 5.38, 7.32, 18.965, 0.000, []float64{1.393})
 
 	// Output:
 	// Sketch:
@@ -68,13 +68,13 @@ func ExampleRectangle() {
 	//    Ws on zero   |------->                 |--------->
 	//               --------------- ground ------------------
 	//
-	// | side   | width  | Ws on zero | Ws on top | Center of Ws | Wind average |
-	// |        |        | elevation  | elevation |              | h/2 elev.    |
-	// |        | meter  | Pa         | Pa        | meter        | Pa           |
-	// |        |        |            |           |              |              |
-	// |      A |  1.076 |   -473.8   |   -741.3  | 10.178       |   -652.1     |
-	// |      B |  4.304 |   -379.1   |   -593.0  | 10.178       |   -521.7     |
-	// |      C |  1.940 |   -236.9   |   -370.6  | 10.178       |   -326.1     |
-	// |      D |  5.380 |   +344.6   |   +594.5  | 10.324       |   +511.2     |
-	// |      E |  5.380 |   -215.4   |   -371.6  | 10.324       |   -319.5     |
+	// | side   | width  | Ws on zero | Ws on top | Center of Ws | Ws average |
+	// |        |        | elevation  | elevation |              |            |
+	// |        | meter  | Pa         | Pa        | meter        | Pa         |
+	// |        |        |            |           |              |            |
+	// |      A |  1.076 |   -473.8   |   -741.3  | 10.178       |   -652.1   |
+	// |      B |  4.304 |   -379.1   |   -593.0  | 10.178       |   -521.7   |
+	// |      C |  1.940 |   -236.9   |   -370.6  | 10.178       |   -326.1   |
+	// |      D |  5.380 |   +344.6   |   +594.5  | 10.324       |   +511.2   |
+	// |      E |  5.380 |   -215.4   |   -371.6  | 10.324       |   -319.5   |
 }

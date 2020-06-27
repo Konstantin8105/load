@@ -106,20 +106,17 @@ func (rs RectangleSide) String() string {
 }
 
 // see part B.1.2
-func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []float64) {
+func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float64, hzs []float64) {
 	// generate height sections
 	var zs []float64
 	{
-		for z := 0.0; ; z += 5.0 {
-			isEnd := false
-			if z >= h {
-				isEnd = true
-				z = h
-			}
+		zs = append(zs, zo)
+		zmin := float64(int(zo/5)+1) * 5.0
+		for z := zmin; z < h; z += 5.0 {
 			zs = append(zs, z)
-			if isEnd {
-				break
-			}
+		}
+		if zs[len(zs)-1] != h {
+			zs = append(zs, h)
 		}
 	}
 
@@ -255,7 +252,7 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []flo
 		case SideA:
 			width = math.Min(e/5.0, d)
 		case SideB:
-			width = math.Max(math.Min(e,d)-e/5.0, 0.0)
+			width = math.Max(math.Min(e, d)-e/5.0, 0.0)
 		case SideC:
 			width = math.Max(0.0, d-e)
 		case SideD:
@@ -277,20 +274,20 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []flo
               --------------- ground ------------------
 `)
 	fmt.Fprintf(w, "\n")
-	fmt.Fprintf(w, "|\tside\t|\twidth\t|\tWs on zero\t|\tWs on top\t|\tCenter of Ws\t|\tWind average\t|\n")
-	fmt.Fprintf(w, "|\t\t|\t\t|\televation\t|\televation\t|\t\t|\th/2 elev.\t|\n")
+	fmt.Fprintf(w, "|\tside\t|\twidth\t|\tWs on zero\t|\tWs on top\t|\tCenter of Ws\t|\tWs average\t|\n")
+	fmt.Fprintf(w, "|\t\t|\t\t|\televation\t|\televation\t|\t\t|\t\t|\n")
 	fmt.Fprintf(w, "|\t\t|\tmeter\t|\tPa\t|\tPa\t|\tmeter\t|\tPa\t|\n")
 	fmt.Fprintf(w, "|\t\t|\t\t|\t\t|\t\t|\t\t|\t\t|\n")
 	for _, side := range ListRectangleSides() {
 		// calculate trapezoid wind load
-		//	1. area   = (w0+w1)/2 * h
-		//	2. center = h/3*(w0+2*w1)/(w0+w1)
+		//	1. area   = (w0+w1)/2 * (h - zo)
+		//	2. center = (h - zo)/3*(w0+2*w1)/(w0+w1) + zo
 		// solving system:
-		//	1. w0+w1   = area/h*2
-		//	2. w0+2*w1 = center*3/h*(w0+w1)
+		//	1. w0+w1   = area/(h - zo)*2
+		//	2. w0+2*w1 = (center-zo)*3/(h-zo)*(w0+w1)
 		// combile 1 and 2:
-		//	1. w0+w1   = area/h*2
-		//  3. w0+2*w1 = center*3/h*area/h*2
+		//	1. w0+w1   = area/(h-zo)*2
+		//  3. w0+2*w1 = (center-zo)*3/(h-zo)*area/(h-zo)*2
 		// rename rigth parts:
 		//	1. w0+w1   = r1
 		//  3. w0+2*w1 = r2
@@ -299,15 +296,28 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, hzs []flo
 		//	r1 - w1 + 2*w1 = r2
 		//	w1 = r2 - r1
 		//	w0 = r1 - w1 = r1 - r2 + r1 = 2*r1 - r2
-		r1 := av[side].value / h * 2.0
-		r2 := av[side].center * 3.0 / h * r1
+		r1 := av[side].value / (h - zo) * 2.0
+		r2 := (av[side].center - zo) * 3.0 / (h - zo) * r1
 		w0 := 2*r1 - r2
 		w1 := r2 - r1
 
 		// calculate uniform wind load
 		// with same moment on ground
 		M := av[side].value * av[side].center
-		waverage := M / (h * h / 2.0)
+		waverage := M / ((h - zo) * ((h-zo)/2.0 + zo))
+
+		{
+			// check
+			eps := 1e-6
+			area := (w0 + w1) / 2 * (h - zo)
+			if e := math.Abs((area - av[side].value) / area); e > eps {
+				panic(e)
+			}
+			area = waverage * (h - zo)
+			if e := math.Abs((area - av[side].value) / area); math.Abs(area) < math.Abs(av[side].value) {
+				panic(fmt.Errorf("%v %v %v", e, area, av[side].value))
+			}
+		}
 
 		// width
 		wd := width(side)
