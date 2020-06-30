@@ -290,7 +290,7 @@ func ExampleGraphB15() {
 		fmt.Fprintf(w, "| %6.1e |", delta)
 		for _, re := range Res {
 			d := 1.4
-			cx := GraphB15(d, delta*d, re)
+			cx := GraphB17(d, delta*d, re)
 			fmt.Fprintf(w, "\t%6.4f", cx)
 		}
 		fmt.Fprintf(w, "\n")
@@ -306,6 +306,37 @@ func ExampleGraphB15() {
 	// | 1.0e-04 | 1.2000 1.2000 0.5734 0.5551 0.6027 0.6342 0.6573 0.7900 0.8289 0.8767 0.8790
 	// | 1.0e-05 | 1.2000 1.2000 0.5734 0.4000 0.4000 0.4396 0.4695 0.6441 0.6973 0.7698 0.7790
 	// | 1.0e-06 | 1.2000 1.2000 0.5734 0.4000 0.4000 0.4396 0.4695 0.6441 0.6973 0.7698 0.7790
+}
+
+func ExampleGraphB23() {
+	var buf bytes.Buffer
+	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
+	fmt.Fprintf(w, "Graph B23\n")
+	λes := []float64{1, 5, 10, 50, 200, 500}
+	ϕs := []float64{0.1, 0.5, 0.9, 0.95, 1.0}
+	fmt.Fprintf(w, "| %7s |", "-")
+	for _, λe := range λes {
+		fmt.Fprintf(w, "\t%6.0e", λe)
+	}
+	fmt.Fprintf(w, "\n")
+	for _, ϕ := range ϕs {
+		fmt.Fprintf(w, "| %6.1e |", ϕ)
+		for _, λe := range λes {
+			Kλ := GraphB23(λe, ϕ)
+			fmt.Fprintf(w, "\t%6.4f", Kλ)
+		}
+		fmt.Fprintf(w, "\n")
+	}
+	w.Flush()
+	fmt.Fprintf(os.Stdout, "%s", buf.String())
+	// Output:
+	// Graph B23
+	// |       - |  1e+00  5e+00  1e+01  5e+01  2e+02  5e+02
+	// | 1.0e-01 | 0.9800 0.9870 0.9900 0.9900 1.0000 1.0000
+	// | 5.0e-01 | 0.8800 0.9010 0.9100 0.9589 1.0000 1.0000
+	// | 9.0e-01 | 0.8200 0.8549 0.8700 0.9399 1.0000 1.0000
+	// | 9.5e-01 | 0.7300 0.7789 0.8000 0.9118 1.0000 1.0000
+	// | 1.0e+00 | 0.6000 0.6699 0.7000 0.8747 1.0000 1.0000
 }
 
 func ExampleNuPlate() {

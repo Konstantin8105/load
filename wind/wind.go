@@ -449,7 +449,7 @@ func GraphB14(d, Δ, Re float64) (cx float64) {
 	return 0.2 + (0.4-0.2)*(ddp-(-5))/(-3-(-5))
 }
 
-func GraphB15(d, Δ, Re float64) (Cx float64) {
+func GraphB17(d, Δ, Re float64) (Cx float64) {
 	defer func() {
 		if Cx > 1.2 {
 			Cx = 1.2
@@ -483,6 +483,61 @@ func GraphB15(d, Δ, Re float64) (Cx float64) {
 
 	return math.Max(Cx, Cx5+(Cx2-Cx5)*(power-(-5))/(-2-(-5)))
 }
+
+// В.1.15 Учет относительного удлинения
+func GraphB23(λe, ϕ float64) (Kλ float64) {
+	if λe < 1 {
+		λe = 1.0
+	}
+	if λe > 200 {
+		λe = 200
+	}
+	type line struct {
+		ϕ                       float64
+		Kλ1, Kλ10, Kλ100, Kλ200 float64
+	}
+	K := []line{
+		{ϕ: 0.00, Kλ1: 1.00, Kλ10: 1.00, Kλ100: 1.00, Kλ200: 1.00},
+		{ϕ: 0.10, Kλ1: 0.98, Kλ10: 0.99, Kλ100: 0.99, Kλ200: 1.00},
+		{ϕ: 0.50, Kλ1: 0.88, Kλ10: 0.91, Kλ100: 0.98, Kλ200: 1.00},
+		{ϕ: 0.90, Kλ1: 0.82, Kλ10: 0.87, Kλ100: 0.97, Kλ200: 1.00},
+		{ϕ: 0.95, Kλ1: 0.73, Kλ10: 0.80, Kλ100: 0.96, Kλ200: 1.00},
+		{ϕ: 1.00, Kλ1: 0.60, Kλ10: 0.70, Kλ100: 0.95, Kλ200: 1.00},
+	}
+	var l line // actual line
+	for index := 1; index < len(K); index++ {
+		if K[index-1].ϕ <= ϕ && ϕ <= K[index].ϕ {
+			l.Kλ1 = K[index-1].Kλ1 + (K[index].Kλ1-K[index-1].Kλ1)*
+				(ϕ-K[index-1].ϕ)/(K[index].ϕ-K[index-1].ϕ)
+			l.Kλ10 = K[index-1].Kλ10 + (K[index].Kλ10-K[index-1].Kλ10)*
+				(ϕ-K[index-1].ϕ)/(K[index].ϕ-K[index-1].ϕ)
+			l.Kλ100 = K[index-1].Kλ100 + (K[index].Kλ100-K[index-1].Kλ100)*
+				(ϕ-K[index-1].ϕ)/(K[index].ϕ-K[index-1].ϕ)
+			l.Kλ200 = K[index-1].Kλ200 + (K[index].Kλ200-K[index-1].Kλ200)*
+				(ϕ-K[index-1].ϕ)/(K[index].ϕ-K[index-1].ϕ)
+		}
+	}
+	lλe := math.Log10(λe)
+	if 1 <= λe && λe <= 10 {
+		return l.Kλ1 + (l.Kλ10-l.Kλ1)*(lλe-math.Log10(1.0))/
+			(math.Log10(10.0)-math.Log10(1.0))
+	} else if 10 <= λe && λe <= 100 {
+		return l.Kλ10 + (l.Kλ100-l.Kλ10)*(lλe-math.Log10(10.0))/
+			(math.Log10(100.0)-math.Log10(10.0))
+	} else if 100 <= λe && λe <= 200 {
+		return l.Kλ100 + (l.Kλ200-l.Kλ100)*(lλe-math.Log10(100.0))/
+			(math.Log10(200.0)-math.Log10(100.0))
+	}
+
+	return 1.0
+}
+
+const (
+	TableB10Col1 float64 = 0.5
+	TableB10Col2 float64 = 1.0
+	TableB10Col3 float64 = 2.0
+	TableB10Col4 float64 = 1e100 // Infinity : math.Inf(1)
+)
 
 type Struhale int
 
