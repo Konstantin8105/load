@@ -11,15 +11,12 @@ import (
 
 // TODO: add frame
 
-// see part B.1.11
+// Sphere сфера by B.1.11
 func Sphere(zone Zone, wr Region, zg, d, Δ float64) (cx, cz, Re, ν float64, err error) {
 	// TODO : add error handling
 	ze := zg + d/2.0
 	Wo := float64(wr)
-	Kz, err := FactorKz(zone, ze)
-	if err != nil {
-		return
-	}
+	Kz := FactorKz(zone, ze)
 	Re = 0.88 * d * math.Sqrt(Wo*Kz*γf) * 1e5
 	cx = GraphB14(d, Δ, Re)
 	ν = FactorNu(0.7*d, 0.7*d)
@@ -141,20 +138,13 @@ func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float6
 		Wo := float64(wr)
 		fmt.Fprintf(w, "\t%6.3f", z)
 		// Ze
-		var ze float64
-		ze = EffectiveHeigth(z, d, h, true)
+		ze := EffectiveHeigth(z, d, h, true)
 		fmt.Fprintf(w, "\t%6.3f", ze)
 		// Kz
-		Kz, err := FactorKz(zone, ze)
-		if err != nil {
-			panic(err)
-		}
+		Kz := FactorKz(zone, ze)
 		fmt.Fprintf(w, "\t%6.3f", Kz)
 		// Zeta
-		ζ, err := FactorZeta(zone, ze)
-		if err != nil {
-			panic(err)
-		}
+		ζ := FactorZeta(zone, ze)
 		fmt.Fprintf(w, "\t%6.3f", ζ)
 		// Xi
 		ξ := FactorXiHz(wr, zone, ld, true, h, hzs)
@@ -318,16 +308,10 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 		}
 		fmt.Fprintf(w, "\t%6.3f", ze)
 		// Kz
-		Kz, err := FactorKz(zone, ze)
-		if err != nil {
-			panic(err)
-		}
+		Kz := FactorKz(zone, ze)
 		fmt.Fprintf(w, "\t%6.3f", Kz)
 		// Zeta
-		ζ, err := FactorZeta(zone, ze)
-		if err != nil {
-			panic(err)
-		}
+		ζ := FactorZeta(zone, ze)
 		fmt.Fprintf(w, "\t%6.3f", ζ)
 		// Xi
 		ξ := FactorXiHz(wr, zone, ld, true, h, hzs)

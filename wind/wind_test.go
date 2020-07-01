@@ -9,7 +9,7 @@ import (
 	"text/tabwriter"
 )
 
-func ExampleWo() {
+func ExampleRegion() {
 	wos := ListWo()
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
@@ -56,14 +56,8 @@ func ExampleNaturalFrequencyLimit() {
 	ld15 := LogDecriment15
 	fmt.Fprintf(w, "flim,Hz\t%10s\t%10s\n", ld30.Name(), ld15.Name())
 	for _, wo := range ListWo() {
-		fl30, err := NaturalFrequencyLimit(wo, ld30)
-		if err != nil {
-			panic(err)
-		}
-		fl15, err := NaturalFrequencyLimit(wo, ld15)
-		if err != nil {
-			panic(err)
-		}
+		fl30 := NaturalFrequencyLimit(wo, ld30)
+		fl15 := NaturalFrequencyLimit(wo, ld15)
 		fmt.Fprintf(w, "%3s\t%10.2f\t%10.2f\n", wo.Name(), fl30, fl15)
 	}
 	w.Flush()
@@ -86,7 +80,7 @@ func TestFactorXi(t *testing.T) {
 		e          float64
 		xi30, xi15 float64
 	}{
-		{0.000000, 0.9285, 0.9385},
+		{0.000000, 1.0000, 1.0000},
 		{0.005237, 1.0274, 1.2491},
 		{0.014249, 1.1977, 1.5250},
 		{0.035085, 1.5048, 1.8328},
@@ -134,10 +128,7 @@ func ExampleFactorKz() {
 	for _, ze := range []float64{5, 10, 20, 40, 60, 80, 100, 150, 200, 250, 300} {
 		fmt.Fprintf(w, "%.0f", ze)
 		for _, zone := range []Zone{ZoneA, ZoneB, ZoneC} {
-			kz, err := FactorKz(zone, ze)
-			if err != nil {
-				panic(err)
-			}
+			kz := FactorKz(zone, ze)
 			fmt.Fprintf(w, "\t%.2f", kz)
 		}
 		fmt.Fprintf(w, "\n")
@@ -168,10 +159,7 @@ func ExampleFactorZeta() {
 	for _, ze := range []float64{5, 10, 20, 40, 60, 80, 100, 150, 200, 250, 300} {
 		fmt.Fprintf(w, "%.0f", ze)
 		for _, zone := range []Zone{ZoneA, ZoneB, ZoneC} {
-			zeta, err := FactorZeta(zone, ze)
-			if err != nil {
-				panic(err)
-			}
+			zeta := FactorZeta(zone, ze)
 			fmt.Fprintf(w, "\t%.2f", zeta)
 		}
 		fmt.Fprintf(w, "\n")
@@ -276,7 +264,7 @@ func ExampleGraphB14() {
 	// | 1.0e-02 | 0.6000 0.6000 0.6000 0.6000 0.4000 0.4000 0.4000 0.4000
 }
 
-func ExampleGraphB15() {
+func ExampleGraphB17() {
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
 	fmt.Fprintf(w, "Graph B15\n")
@@ -339,7 +327,7 @@ func ExampleGraphB23() {
 	// | 1.0e+00 | 0.6000 0.6699 0.7000 0.8747 1.0000 1.0000
 }
 
-func ExampleNuPlate() {
+func ExampleNuPlates() {
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
 	fmt.Fprintf(w, "Table 11.7\n")

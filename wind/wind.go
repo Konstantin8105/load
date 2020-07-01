@@ -1,3 +1,8 @@
+// wind package for calculate the wind load on buildings.
+// Main code : SP20.13330.2016
+// Primary language for output: english
+// Language for comments: any
+
 package wind
 
 import (
@@ -11,7 +16,7 @@ import (
 // Region is wind region. Ветровые районы (принимаются по карте 2 приложения Е)
 type Region float64
 
-// TODO : add unit
+// Unit: Pa
 const (
 	RegionIa  Region = 170.0
 	RegionI   Region = 230.0
@@ -64,10 +69,10 @@ func (wr Region) Name() string {
 	return name
 }
 
+// String implementation of Stringer interface
 func (wr Region) String() string {
 	name := wr.Name()
-	// TODO: add translation
-	return fmt.Sprintf("Wind region: %3s with value = %.1f Pa", name, float64(wr)) // TODO: add unit
+	return fmt.Sprintf("Wind region: %3s with value = %.1f Pa", name, float64(wr))
 }
 
 // Zone - тип местности
@@ -87,19 +92,13 @@ const (
 	ZoneC Zone = 'C'
 )
 
+// String implementation of Stringer interface
 func (z Zone) String() string {
 	// TODO: add translation
 	return "Wind zone: " + string(z)
 }
 
-func (z Zone) IsValid() bool {
-	switch z {
-	case ZoneA, ZoneB, ZoneC:
-		return true
-	}
-	return false
-}
-
+// constants by table 11.3 SP20.13330.2016
 func (z Zone) constants() (α, k10, ζ10 float64) {
 	switch z {
 	case ZoneA:
@@ -132,12 +131,10 @@ func (ld LogDecriment) Name() string {
 	return fmt.Sprintf("δ = %.2f", float64(ld))
 }
 
+// String implementation of Stringer interface
 func (ld LogDecriment) String() string {
-	// TODO: add translation
 	return fmt.Sprintf("Wind log decrement: %s", ld.Name())
 }
-
-// TODO : add code name
 
 // EffectiveHeigth by par 11.1.5
 //	z - height from ground / высота от поверхности земли
@@ -174,42 +171,22 @@ func EffectiveHeigth(z, d, h float64, isTower bool) (ze float64) {
 // see 11.1.12
 const γf = 1.40
 
-func FactorKz(zone Zone, ze float64) (float64, error) {
-	// TODO: add error handling
-	// 	if !zone.IsValid() {
-	// 		panic("not valid zone")
-	// 	}
-	// 	if !validHeigt(ze) {
-	// 		panic("not valid heigth")
-	// 	}
-	// TODO: add link
-	// table 11.2
-	// formula 11.4
+// FactorKz by table 11.2 and formula 11.4
+func FactorKz(zone Zone, ze float64) (kz float64) {
 	α, k10, ζ10 := zone.constants()
 	_ = ζ10
-	return k10 * math.Pow(ze/10.0, 2*α), nil
+	return k10 * math.Pow(ze/10.0, 2.0*α)
 }
 
-func FactorZeta(zone Zone, ze float64) (float64, error) {
-	// TODO: add error handling
-	// 	if !zone.IsValid() {
-	// 		panic("not valid zone")
-	// 	}
-	// 	if !validHeigt(ze) {
-	// 		panic("not valid heigth")
-	// 	}
-	// TODO: add link
-	// table 11.3
-	// formula 11.6
+// FactorZeta by table 11.4 and formula 11.6
+func FactorZeta(zone Zone, ze float64) (ζ float64) {
 	α, k10, ζ10 := zone.constants()
 	_ = k10
-	return ζ10 * math.Pow(ze/10.0, -α), nil
+	return ζ10 * math.Pow(ze/10.0, -α)
 }
 
-// Table 11.5
-// par 11.1.10
-func NaturalFrequencyLimit(wr Region, ld LogDecriment) (float64, error) {
-	// TODO: add error handling
+// NaturalFrequencyLimit by table 11.5
+func NaturalFrequencyLimit(wr Region, ld LogDecriment) (Flim float64) {
 	for _, f := range []struct {
 		value30, value15 float64
 		wr               Region
@@ -227,16 +204,21 @@ func NaturalFrequencyLimit(wr Region, ld LogDecriment) (float64, error) {
 			continue
 		}
 		if ld == LogDecriment30 {
-			return f.value30, nil
+			return f.value30
 		}
 		if ld == LogDecriment15 {
-			return f.value15, nil
+			return f.value15
 		}
 	}
-
-	return -1.0, fmt.Errorf("not found")
+	panic("not implemented")
 }
 
+// FactorXiHz - коэффициент динамичности by pic 11.1 c учетом
+// динамической реации по s собственным формам
+//	isBuilding = true  - для зданий и сооружений zэк = 0.8*h
+//	isBuilding = false - для конструктивных элементов zэк — высота z, на
+//		которой они расположены
+//	hzs - список частот собственных колебаний
 func FactorXiHz(wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float64, hzs []float64) (ξ float64) {
 	defer func() {
 		// round
@@ -244,10 +226,7 @@ func FactorXiHz(wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float6
 		ξi := int64(ξ)
 		ξ = float64(ξi) / 1000.0
 	}()
-	flim, err := NaturalFrequencyLimit(wr, ld)
-	if err != nil {
-		panic(err)
-	}
+	flim := NaturalFrequencyLimit(wr, ld)
 	// filter of natural frequency
 	{
 		s := make([]float64, len(hzs))
@@ -267,10 +246,7 @@ func FactorXiHz(wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float6
 	if isBuilding {
 		z = 0.8 * z
 	}
-	Kz, err := FactorKz(zone, z)
-	if err != nil {
-		panic(err)
-	}
+	Kz := FactorKz(zone, z)
 	Wo := float64(wr)
 	ξ = 1.0 // by default if flim < f
 	if len(hzs) > 0 {
@@ -288,8 +264,14 @@ func FactorXiHz(wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float6
 	return
 }
 
-// pic 11.1
+// factorXi - коэффициент динамичности by pic 11.1
 func factorXi(ld LogDecriment, ε float64) (ξ float64) {
+	defer func() {
+		// предполагается, что коэффициент динамичности не может быть менее 1.0
+		if ξ < 1.0 {
+			ξ = 1.0
+		}
+	}()
 	switch ld {
 	case LogDecriment30:
 		return 189848.0*pow.En(ε, 6) +
@@ -313,16 +295,17 @@ func factorXi(ld LogDecriment, ε float64) (ξ float64) {
 	panic("not implemented")
 }
 
-// TODO: add godoc for all function
-
+// Plate плоскость
 type Plate string
 
+// Плоскости
 const (
 	ZOY Plate = "ZOY"
 	ZOX Plate = "ZOX"
 	XOY Plate = "XOY"
 )
 
+// NuPlates calculate dimention values
 func NuPlates(b, h, a float64, pl Plate) (ρ, χ float64) {
 	switch pl {
 	case ZOY:
@@ -337,14 +320,13 @@ func NuPlates(b, h, a float64, pl Plate) (ρ, χ float64) {
 	return
 }
 
+// FactorNu Коэффициент пространственной корреляции пульсаций давления
+// by table 11.6
 func FactorNu(ρ, χ float64) (ν float64) {
-	// table 11.6
-
 	const (
 		col = 7
 		row = 7
 	)
-
 	var (
 		header = [col]float64{5, 10, 20, 40, 80, 160, 350}
 		ro     = [row]float64{0.1, 5, 10, 20, 40, 80, 160}
@@ -427,7 +409,8 @@ func FactorNu(ρ, χ float64) (ν float64) {
 	return
 }
 
-// Реализованый алгоритм упрощенный, но в худшую сторону.
+// GraphB14 Реализованый алгоритм упрощенный, но в худшую сторону.
+// Аэродинамические коэффициенты лобового сопротивления сх сферы
 func GraphB14(d, Δ, Re float64) (cx float64) {
 	defer func() {
 		// round
@@ -449,6 +432,7 @@ func GraphB14(d, Δ, Re float64) (cx float64) {
 	return 0.2 + (0.4-0.2)*(ddp-(-5))/(-3-(-5))
 }
 
+// GraphB17 Значение коэффициента Cx
 func GraphB17(d, Δ, Re float64) (Cx float64) {
 	defer func() {
 		if Cx > 1.2 {
@@ -484,7 +468,7 @@ func GraphB17(d, Δ, Re float64) (Cx float64) {
 	return math.Max(Cx, Cx5+(Cx2-Cx5)*(power-(-5))/(-2-(-5)))
 }
 
-// В.1.15 Учет относительного удлинения
+// GraphB23 - В.1.15 Учет относительного удлинения
 func GraphB23(λe, ϕ float64) (Kλ float64) {
 	if λe < 1 {
 		λe = 1.0
