@@ -38,7 +38,10 @@ func Sphere(zone Zone, wr Region, zg, d, Δ float64) (cx, cz, Re, ν float64, er
 // TODO: add frame
 // TODO: add horizontal duct
 
-func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float64, hzs []float64) {
+// Cylinder return Wsum dependency of height
+func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float64, hzs []float64) (
+	WsZ func(z float64) float64,
+) {
 
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
@@ -136,7 +139,10 @@ func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float6
 	fmt.Fprintf(w, "\t|\tz\tze\tKz\tζ\tξ\t|\tWm\tWp\tWsum\t|\n")
 	fmt.Fprintf(w, "\t|\tm\tm\t\t\t\t|\tPa\tPa\tPa\t|\n")
 	fmt.Fprintf(w, "\t|\t\t\t\t\t\t|\t\t\t\t|\n")
-	for _, z := range zs {
+	WsZ = func(z float64) float64 {
+		if z < zo || h < z {
+			panic("not acceptable")
+		}
 		separator()
 		// Wo
 		Wo := float64(wr)
@@ -166,9 +172,14 @@ func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float6
 		separator()
 
 		fmt.Fprintf(w, "\n")
+		return Wsum
+	}
+	for _, z := range zs {
+		_ = WsZ(z)
 	}
 	w.Flush()
 	fmt.Fprintf(os.Stdout, "%s", buf.String())
+	return
 }
 
 // TODO : add stack
@@ -181,10 +192,11 @@ const (
 	SideC
 	SideD
 	SideE
+	SideSize // size of sides for rectangle building
 )
 
-func ListRectangleSides() []RectangleSide {
-	return []RectangleSide{
+func ListRectangleSides() [SideSize]RectangleSide {
+	return [SideSize]RectangleSide{
 		SideA,
 		SideB,
 		SideC,
@@ -252,8 +264,10 @@ func splitHeigth(zo, h float64) (zs []float64) {
 	return
 }
 
-// see part B.1.2
-func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float64, hzs []float64) {
+// Rectangle return Wsum dependency of height, see part B.1.2
+func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float64, hzs []float64) (
+	WsZ [SideSize]func(z float64) float64,
+) {
 	// generate height sections
 	zs := splitHeigth(zo, h)
 
@@ -289,7 +303,11 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 	fmt.Fprintf(w, "\th\t%6.3f m\n", h)
 	fmt.Fprintf(w, "\n")
 
-	section := func(w io.Writer, z float64, side RectangleSide) (Wsum float64) {
+	section := func(w io.Writer, z float64, side RectangleSide) (wsum float64) {
+		if w == nil {
+			var buf bytes.Buffer
+			w = &buf
+		}
 		separator := func() {
 			fmt.Fprintf(w, "\t|")
 		}
@@ -340,13 +358,23 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 		Wp := Wm * ξ * ζ * ν
 		fmt.Fprintf(w, "\t%6.1f", Wp)
 		// Wsum
-		Wsum = Wm + Wp
+		Wsum := Wm + Wp
 		fmt.Fprintf(w, "\t%6.1f", Wsum)
 		// separator
 		separator()
 
 		fmt.Fprintf(w, "\n")
-		return
+		return Wsum
+	}
+
+	for _, side := range ListRectangleSides() {
+		side := side
+		WsZ[side] = func(z float64) float64 {
+			if z < zo || h < z {
+				panic("not acceptable")
+			}
+			return section(nil, z, side)
+		}
 	}
 
 	// average value
@@ -465,6 +493,7 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 
 	w.Flush()
 	fmt.Fprintf(os.Stdout, "%s", buf.String())
+	return
 }
 
 // TODO : add cylinder
