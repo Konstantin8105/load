@@ -10,8 +10,7 @@ import (
 )
 
 // Sphere сфера by B.1.11
-func Sphere(zone Zone, wr Region, zg, d, Δ float64) (cx, cz, Re, ν float64, err error) {
-	// TODO : add error handling
+func Sphere(zone Zone, wr Region, zg, d, Δ float64) (cx, cz, Re, ν float64) {
 	ze := zg + d/2.0
 	Wo := float64(wr)
 	Kz := FactorKz(zone, ze)
@@ -144,10 +143,6 @@ func Frame(zone Zone, wr Region, ld LogDecriment, h float64, hzs []float64) (
 	return
 }
 
-// TODO: add cylinder
-// TODO: add frame
-// TODO: add horizontal duct
-
 // Cylinder return Wsum dependency of height
 func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float64, hzs []float64) (
 	WsZ func(z float64) float64,
@@ -196,10 +191,7 @@ func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float6
 		//	ze равно расстоянию от поверхности земли до оси горизонтально
 		//	расположенного сооружения.
 		ze := zo + 0.8*(h-zo)
-		_, _, Re, _, err := Sphere(zone, wr, ze, d, Δ)
-		if err != nil {
-			panic(err)
-		}
+		_, _, Re, _ := Sphere(zone, wr, ze, d, Δ)
 		fmt.Fprintf(w, "Re = %6.3f*10^5 for ze=0.8*h = %6.3f\n", Re*1e-5, ze)
 		return Re
 	}()
@@ -292,8 +284,6 @@ func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float6
 	return
 }
 
-// TODO : add stack
-
 type RectangleSide int
 
 const (
@@ -381,7 +371,6 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 	// generate height sections
 	zs := splitHeigth(zo, h)
 
-	// TODO: for 2 directions
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
 	fmt.Fprintf(w, `Sketch:
@@ -491,8 +480,8 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 	type average struct{ center, value float64 }
 	av := make([]average, len(ListRectangleSides()))
 
-	// TODO : add unit
 	fmt.Fprintf(w, "\t|\tside\tz\tze\tKz\tζ\tξ\t|\tcx\tρ\tχ\tν\tWm\tWp\tWsum\t|\n")
+	fmt.Fprintf(w, "\t|\t\t\t\t\t\t\t|\t\t\t\t\tPa\tPa\tPa\t|\n")
 	for _, side := range ListRectangleSides() {
 		fmt.Fprintf(w, "\t|\t \t \t \t \t \t \t|\t \t \t \t \t \t \t \t|\n")
 		wmLast := 0.0
@@ -607,7 +596,8 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 }
 
 // TODO : add cylinder
-
+// TODO : add stack
+// TODO: add horizontal duct
 // TODO: add integration test
 
 // double SNiP2_01_07_Schema12b_Ce1(double angle, double h1, double d, )

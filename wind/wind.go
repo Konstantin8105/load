@@ -94,7 +94,6 @@ const (
 
 // String implementation of Stringer interface
 func (z Zone) String() string {
-	// TODO: add translation
 	return "Wind zone: " + string(z)
 }
 
