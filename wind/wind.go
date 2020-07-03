@@ -175,6 +175,9 @@ func FactorKz(zone Zone, ze float64) (kz float64) {
 	if ze <= 5.0 {
 		ze = 5.0
 	}
+	if ze > 300.0 {
+		panic(fmt.Errorf("ze = %f is too big", ze))
+	}
 	α, k10, ζ10 := zone.constants()
 	_ = ζ10
 	return k10 * math.Pow(ze/10.0, 2.0*α)
@@ -184,6 +187,9 @@ func FactorKz(zone Zone, ze float64) (kz float64) {
 func FactorZeta(zone Zone, ze float64) (ζ float64) {
 	if ze <= 5.0 {
 		ze = 5.0
+	}
+	if ze > 300.0 {
+		panic(fmt.Errorf("ze = %f is too big", ze))
 	}
 	α, k10, ζ10 := zone.constants()
 	_ = k10
