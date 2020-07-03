@@ -173,6 +173,9 @@ const γf = 1.40
 
 // FactorKz by table 11.2 and formula 11.4
 func FactorKz(zone Zone, ze float64) (kz float64) {
+	if ze <= 5.0 {
+		ze = 5.0
+	}
 	α, k10, ζ10 := zone.constants()
 	_ = ζ10
 	return k10 * math.Pow(ze/10.0, 2.0*α)
@@ -180,6 +183,9 @@ func FactorKz(zone Zone, ze float64) (kz float64) {
 
 // FactorZeta by table 11.4 and formula 11.6
 func FactorZeta(zone Zone, ze float64) (ζ float64) {
+	if ze <= 5.0 {
+		ze = 5.0
+	}
 	α, k10, ζ10 := zone.constants()
 	_ = k10
 	return ζ10 * math.Pow(ze/10.0, -α)
@@ -305,7 +311,8 @@ const (
 	XOY Plate = "XOY"
 )
 
-// NuPlates calculate dimention values
+// NuPlates calculate dimention values.
+// see table 11.7
 func NuPlates(b, h, a float64, pl Plate) (ρ, χ float64) {
 	switch pl {
 	case ZOY:

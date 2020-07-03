@@ -6,6 +6,56 @@ import (
 	"os"
 )
 
+func ExampleFrame() {
+	Wsum := Frame(ZoneA, RegionII, LogDecriment15, 18.965, []float64{1.393})
+	for _, z := range []float64{2.8, 5, 10} {
+		fmt.Fprintf(os.Stdout, "Wsum[z = %6.3f m] = %6.1f Pa\n", z, Wsum(z))
+	}
+	// Output:
+	// Sketch:
+	//
+	//           *-------
+	//           *     |
+	//   Wind    *     |
+	//  ----->   *     |
+	//           *     |
+	//           *     |
+	//           *     |
+	//           *     h
+	//           *---  |
+	//             |   |
+	//             zo  |
+	//             |   |
+	//    ---------- ground -------------
+	//
+	// Wind zone: A
+	// Wind region:  II with value = 300.0 Pa
+	// Wind log decrement: δ = 0.15
+	// Natural frequency : [1.393]
+	//
+	// Dimensions:
+	// h 18.965 m
+	//
+	// Cx  =  1.400
+	//
+	// The spatial correlation coefficient of pressure pulsations:
+	// ρ  0.000
+	// χ 18.965
+	// ν  0.884
+	//
+	// | z      ze     Kz     ζ      ξ      | Wm     Wp     Wsum   |
+	// | m      m                           | Pa     Pa     Pa     |
+	// |                                    |                      |
+	// |  0.000  0.000  0.812  0.843  1.582 |  341.1  402.4  743.5 |
+	// |  5.000  5.000  0.812  0.843  1.582 |  341.1  402.4  743.5 |
+	// | 10.000 10.000  1.000  0.760  1.582 |  420.0  446.5  866.5 |
+	// | 15.000 15.000  1.129  0.715  1.582 |  474.3  474.5  948.8 |
+	// | 18.965 18.965  1.212  0.690  1.582 |  508.9  491.5 1000.4 |
+	// Wsum[z =  2.800 m] =  743.5 Pa
+	// Wsum[z =  5.000 m] =  743.5 Pa
+	// Wsum[z = 10.000 m] =  866.5 Pa
+}
+
 func ExampleRectangle() {
 	Wsum := Rectangle(ZoneA, RegionII, LogDecriment15, 5.38, 7.32, 18.965, 0.000, []float64{1.393})
 	for _, z := range []float64{10, 15} {
@@ -170,11 +220,11 @@ func ExampleCylinder() {
 	// | z      ze     Kz     ζ      ξ      | Wm     Wp     Wsum   |
 	// | m      m                           | Pa     Pa     Pa     |
 	// |                                    |                      |
-	// |  2.800  2.800  0.683  0.920  1.318 |  159.5  168.8  328.3 |
+	// |  2.800  2.800  0.812  0.843  1.318 |  189.8  184.1  373.9 |
 	// |  5.000  5.000  0.812  0.843  1.318 |  189.8  184.1  373.9 |
 	// | 10.000 10.000  1.000  0.760  1.318 |  233.7  204.3  438.0 |
 	// | 10.100 10.100  1.003  0.759  1.318 |  234.4  204.6  439.0 |
-	// Wsum[z =  2.800 m] =  328.3 Pa
+	// Wsum[z =  2.800 m] =  373.9 Pa
 	// Wsum[z =  5.000 m] =  373.9 Pa
 	// Wsum[z = 10.000 m] =  438.0 Pa
 }

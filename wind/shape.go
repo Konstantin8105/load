@@ -9,8 +9,6 @@ import (
 	"text/tabwriter"
 )
 
-// TODO: add frame
-
 // Sphere сфера by B.1.11
 func Sphere(zone Zone, wr Region, zg, d, Δ float64) (cx, cz, Re, ν float64, err error) {
 	// TODO : add error handling
@@ -31,6 +29,118 @@ func Sphere(zone Zone, wr Region, zg, d, Δ float64) (cx, cz, Re, ν float64, er
 	if zg < d/2.0 {
 		cx *= 1.6
 	}
+	return
+}
+
+// Frame return Wsum dependency of height
+func Frame(zone Zone, wr Region, ld LogDecriment, h float64, hzs []float64) (
+	WsZ func(z float64) float64,
+) {
+
+	var buf bytes.Buffer
+	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
+	fmt.Fprintf(w, `Sketch:
+
+          *-------
+          *     |
+  Wind    *     |
+ ----->   *     |
+          *     |
+          *     |
+          *     |
+          *     h
+          *---  |
+            |   |
+            zo  |
+            |   |
+   ---------- ground -------------
+
+`)
+
+	fmt.Fprintf(w, "%s\n", zone.String())
+	fmt.Fprintf(w, "%s\n", wr.String())
+	fmt.Fprintf(w, "%s\n", ld.String())
+	fmt.Fprintf(w, "Natural frequency : %v\n", hzs)
+	fmt.Fprintf(w, "\n")
+
+	fmt.Fprintf(w, "Dimensions:\n")
+	fmt.Fprintf(w, "\th\t%6.3f m\n", h)
+	fmt.Fprintf(w, "\n")
+
+	// Аэродинамические коэффициенты лобового сопротивления
+	// see par B.1.13
+	cx := 1.4
+	fmt.Fprintf(w, "Cx  = %6.3f\n", cx)
+	fmt.Fprintf(w, "\n")
+
+	// Коэффициент пространственной корреляции пульсаций давлавления
+	// ν
+	fmt.Fprintf(w, "The spatial correlation coefficient of pressure pulsations:\n")
+	ν := func() float64 {
+		pl := ZOY
+		b := 0.0
+		d := 0.0
+		ρ, χ := NuPlates(b, h, d, pl)
+		fmt.Fprintf(w, "\tρ\t%6.3f\n", ρ)
+		fmt.Fprintf(w, "\tχ\t%6.3f\n", χ)
+		return FactorNu(ρ, χ)
+	}()
+	fmt.Fprintf(w, "\tν\t%6.3f\n", ν)
+	fmt.Fprintf(w, "\n")
+
+	// generate height sections
+	zo := 0.0
+	zs := splitHeigth(zo, h)
+
+	separator := func() {
+		fmt.Fprintf(w, "\t|")
+	}
+	fmt.Fprintf(w, "\t|\tz\tze\tKz\tζ\tξ\t|\tWm\tWp\tWsum\t|\n")
+	fmt.Fprintf(w, "\t|\tm\tm\t\t\t\t|\tPa\tPa\tPa\t|\n")
+	fmt.Fprintf(w, "\t|\t\t\t\t\t\t|\t\t\t\t|\n")
+	WsZ = func(z float64) float64 {
+		if z < zo || h < z {
+			panic("not acceptable")
+		}
+		separator()
+		// Wo
+		Wo := float64(wr)
+		fmt.Fprintf(w, "\t%6.3f", z)
+		// Ze
+		ze := func() float64 {
+			d := 0.0
+			return EffectiveHeigth(z, d, h, true)
+		}()
+		fmt.Fprintf(w, "\t%6.3f", ze)
+		// Kz
+		Kz := FactorKz(zone, ze)
+		fmt.Fprintf(w, "\t%6.3f", Kz)
+		// Zeta
+		ζ := FactorZeta(zone, ze)
+		fmt.Fprintf(w, "\t%6.3f", ζ)
+		// Xi
+		ξ := FactorXiHz(wr, zone, ld, true, h, hzs)
+		fmt.Fprintf(w, "\t%6.3f", ξ)
+		separator()
+		// Wm
+		Wm := Wo * Kz * cx
+		fmt.Fprintf(w, "\t%6.1f", Wm)
+		// Wp
+		Wp := Wm * ξ * ζ * ν
+		fmt.Fprintf(w, "\t%6.1f", Wp)
+		// Wsum
+		Wsum := Wm + Wp
+		fmt.Fprintf(w, "\t%6.1f", Wsum)
+		separator()
+
+		fmt.Fprintf(w, "\n")
+		return Wsum
+	}
+	for _, z := range zs {
+		_ = WsZ(z)
+	}
+	w.Flush()
+	fmt.Fprintf(os.Stdout, "%s", buf.String())
 	return
 }
 
