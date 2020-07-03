@@ -143,7 +143,8 @@ func Frame(zone Zone, wr Region, ld LogDecriment, h float64, hzs []float64) (
 	return
 }
 
-// Cylinder return Wsum dependency of height
+// Cylinder return Wsum dependency of height.
+// Acceptable for vertical and horizontal duct.
 func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float64, hzs []float64) (
 	WsZ func(z float64) float64,
 ) {
@@ -594,61 +595,3 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 	fmt.Fprintf(os.Stdout, "%s", buf.String())
 	return
 }
-
-// TODO : add cylinder
-// TODO : add stack
-// TODO: add horizontal duct
-// TODO: add integration test
-
-// double SNiP2_01_07_Schema12b_Ce1(double angle, double h1, double d, )
-// {
-//     if(angle == 0. ) return 1.0;
-//     if(angle < 0.  ) return SNiP2_01_07_Schema12b_Ce1(-angle                     ,h1,d,OUT);
-//     if(angle > 360.) return SNiP2_01_07_Schema12b_Ce1(angle - int(angle/360.)*360,h1,d,OUT);
-//     if(angle > 180.) return SNiP2_01_07_Schema12b_Ce1(180.-(angle-180.)          ,h1,d,OUT);
-//     double Otn[30] = {
-//         00.,    1.0,
-//         10.,    1.0,
-//         20.,    0.8,
-//         30.,    0.4,
-//         40.,    0.0,
-//         50.,    -0.6,
-//         60.,    -1.2,
-//         70.,    -1.3,
-//         80.,    -1.2,
-//         90.,    -1.0,
-//         100.,   -0.8,
-//         110.,   -0.4,
-//         120.,   -0.4,
-//         130.,   -0.4,
-//         180.1,   -0.4};
-// //    if(angle < Otn[00*2+0])return Otn[00*2+1];
-// //    if(angle > Otn[14*2+0])return Otn[14*2+1];
-//     type_LLU i;
-//     for(i=0;i<15;i++)
-//     {
-//         //if(angle == Otn[i*2+0]) return Otn[i*2 + 1];
-//         if(angle <  Otn[i*2+0]) break;
-//     }
-//     double Cbetta = LinearInter(Otn[i*2+1],Otn[i*2+0],Otn[(i-1)*2+1],Otn[(i-1)*2+0],angle);
-//     double k1     = SNiP2_01_07_Schema12b_K1(h1, d);
-//     if(Cbetta > 0) k1 = 1;
-//     double Ce1 = Cbetta * k1;
-//     return Ce1;
-// }
-//
-// double SNiP2_01_07_Table_19(double L, bool OUT = true)
-// {
-//     double fu = 0;
-//          if(L <=  1.0) fu = 1./120.;
-//     else if(L <=  3.0) fu = 1./150.;
-//     else if(L <=  6.0) fu = 1./200.;
-//     else if(L <= 12.0) fu = 1./250.;
-//     else               fu = 1./300.;
-//     if(OUT)
-//     {
-//         printf("Maximum deflection for L = %.1f m is %.2f mm(fu= %.5f)\n",L,L*fu*1e3,fu);
-//     }
-//     return fu;
-// }
-//
