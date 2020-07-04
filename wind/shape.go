@@ -48,11 +48,11 @@ func Frame(zone Zone, wr Region, ld LogDecriment, h float64, hzs []float64) (
           *     |
           *     |
           *     h
-          *---  |
-            |   |
-            zo  |
-            |   |
-   ---------- ground -------------
+          *     |
+          *     |
+          *     |
+          *     |
+   ---- ground ----
 
 `)
 

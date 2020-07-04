@@ -22,11 +22,11 @@ func ExampleFrame() {
 	//           *     |
 	//           *     |
 	//           *     h
-	//           *---  |
-	//             |   |
-	//             zo  |
-	//             |   |
-	//    ---------- ground -------------
+	//           *     |
+	//           *     |
+	//           *     |
+	//           *     |
+	//    ---- ground ----
 	//
 	// Wind zone: A
 	// Wind region:  II with value = 300.0 Pa
