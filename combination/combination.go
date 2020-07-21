@@ -149,7 +149,7 @@ func generateIndex(size, limit int) (combs [][]int) {
 
 // Permute the values at index i to len(a)-1.
 func permutation(a []int, f func([]int), i int) {
-	if i > len(a) {
+	if len(a) < i {
 		f(a)
 		return
 	}

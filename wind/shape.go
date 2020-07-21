@@ -19,7 +19,7 @@ func Sphere(zone Zone, wr Region, zg, d, Δ float64) (cx, cz, Re, ν float64) {
 	ν = FactorNu(0.7*d, 0.7*d)
 
 	// коэффициент подъемной силы сферы
-	if zg > d/2 {
+	if d/2 < zg {
 		cz = 0.0
 	} else {
 		cz = 0.6
@@ -570,7 +570,7 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 			// check
 			eps := 1e-6
 			area := (w0 + w1) / 2 * (h - zo)
-			if e := math.Abs((area - av[side].value) / area); e > eps {
+			if e := math.Abs((area - av[side].value) / area); eps < e {
 				panic(e)
 			}
 			area = waverage * (h - zo)

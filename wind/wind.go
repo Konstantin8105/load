@@ -155,7 +155,7 @@ func EffectiveHeigth(z, d, h float64, isTower bool) (ze float64) {
 		return h
 	}
 	// 2d < h
-	if z >= h-d {
+	if h-d <= z {
 		return h
 	}
 	if d <= z && z <= h-d {
@@ -175,7 +175,7 @@ func FactorKz(zone Zone, ze float64) (kz float64) {
 	if ze <= 5.0 {
 		ze = 5.0
 	}
-	if ze > 300.0 {
+	if 300.0 < ze {
 		panic(fmt.Errorf("ze = %f is too big", ze))
 	}
 	α, k10, ζ10 := zone.constants()
@@ -188,7 +188,7 @@ func FactorZeta(zone Zone, ze float64) (ζ float64) {
 	if ze <= 5.0 {
 		ze = 5.0
 	}
-	if ze > 300.0 {
+	if 300.0 < ze {
 		panic(fmt.Errorf("ze = %f is too big", ze))
 	}
 	α, k10, ζ10 := zone.constants()
@@ -260,7 +260,7 @@ func FactorXiHz(wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float6
 	Kz := FactorKz(zone, z)
 	Wo := float64(wr)
 	ξ = 1.0 // by default if flim < f
-	if len(hzs) > 0 {
+	if 0 < len(hzs) {
 		ξ = 0.0 // reset value
 		for _, hz := range hzs {
 			ε := math.Sqrt(Wo*Kz*γf) / (940.0 * hz) // see formula 11.8
@@ -357,13 +357,13 @@ func FactorNu(ρ, χ float64) (ν float64) {
 	if χ < header[0] {
 		χ = header[0]
 	}
-	if χ > header[col-1] {
+	if header[col-1] < χ {
 		χ = header[col-1]
 	}
 	if ρ < ro[0] {
 		ρ = ro[0]
 	}
-	if ρ > ro[row-1] {
+	if ro[row-1] < ρ {
 		ρ = ro[row-1]
 	}
 	// parameters now in table
@@ -434,7 +434,7 @@ func GraphB14(d, Δ, Re float64) (cx float64) {
 		return 0.6
 	}
 	dd := Δ / d
-	if dd > 1e-3 {
+	if 1e-3 < dd {
 		return 0.4
 	}
 	if dd < 1e-5 {
@@ -447,7 +447,7 @@ func GraphB14(d, Δ, Re float64) (cx float64) {
 // GraphB17 Значение коэффициента Cx
 func GraphB17(d, Δ, Re float64) (Cx float64) {
 	defer func() {
-		if Cx > 1.2 {
+		if 1.2 < Cx {
 			Cx = 1.2
 		}
 		if Cx < 0.4 {
@@ -464,7 +464,7 @@ func GraphB17(d, Δ, Re float64) (Cx float64) {
 	if Δd < 1e-5 {
 		Δd = 1e-5
 	}
-	if Δd > 1e-2 {
+	if 1e-2 < Δd {
 		return 1.2
 	}
 
@@ -485,7 +485,7 @@ func GraphB23(λe, ϕ float64) (Kλ float64) {
 	if λe < 1 {
 		λe = 1.0
 	}
-	if λe > 200 {
+	if 200 < λe {
 		λe = 200
 	}
 	type line struct {

@@ -101,7 +101,7 @@ func TestFactorXi(t *testing.T) {
 	isOk := func(x1, x2 float64, t *testing.T) error {
 		eps := 1.0 / 100.0 // 1%
 		act := math.Abs((x1 - x2) / x1)
-		if act > eps {
+		if eps < act {
 			return fmt.Errorf("Not valid precision: %.2f%% (%.4f,%.4f)", act*100.0, x1, x2)
 		}
 		return nil
