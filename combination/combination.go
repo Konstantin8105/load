@@ -5,17 +5,10 @@ import (
 	"sort"
 )
 
-type Load struct {
-	Name string
-}
-
-func (l Load) String() string {
-	return l.Name
-}
 
 type Multiplication struct {
 	Factor   float64
-	LoadPart *Load
+	LoadPart fmt.Stringer
 }
 
 func (m Multiplication) String() string {
@@ -74,7 +67,7 @@ func GenerateMain(Pd Load, Pl, Pt []Load) (combs []Summ) {
 				if comb[ic][i].Factor != comb[ic][j].Factor {
 					return false
 				}
-				return comb[ic][i].LoadPart.Name < comb[ic][j].LoadPart.Name
+				return comb[ic][i].LoadPart.String() < comb[ic][j].LoadPart.String()
 			})
 		}
 		// check on unique summ

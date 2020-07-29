@@ -5,6 +5,14 @@ import (
 	"os"
 )
 
+type Load struct {
+	Name string
+}
+
+func (l Load) String() string {
+	return l.Name
+}
+
 func Example() {
 	var (
 		DL    = Load{Name: "DL"}
