@@ -5,14 +5,17 @@ import (
 	"sort"
 )
 
+type Load interface {
+	LoadName() string
+}
 
 type Multiplication struct {
 	Factor   float64
-	LoadPart fmt.Stringer
+	LoadPart Load
 }
 
 func (m Multiplication) String() string {
-	return fmt.Sprintf("%.2f %s", m.Factor, m.LoadPart)
+	return fmt.Sprintf("%.2f %s", m.Factor, m.LoadPart.LoadName())
 }
 
 type Summ []Multiplication
@@ -54,7 +57,7 @@ func GenerateMain(Pd Load, Pl, Pt []Load) (combs []Summ) {
 				}
 				s = append(s, Multiplication{
 					Factor:   f,
-					LoadPart: &P[i],
+					LoadPart: P[i],
 				})
 			}
 			// append
@@ -67,7 +70,7 @@ func GenerateMain(Pd Load, Pl, Pt []Load) (combs []Summ) {
 				if comb[ic][i].Factor != comb[ic][j].Factor {
 					return false
 				}
-				return comb[ic][i].LoadPart.String() < comb[ic][j].LoadPart.String()
+				return comb[ic][i].LoadPart.LoadName() < comb[ic][j].LoadPart.LoadName()
 			})
 		}
 		// check on unique summ
@@ -101,7 +104,7 @@ func GenerateMain(Pd Load, Pl, Pt []Load) (combs []Summ) {
 	combs = append(combs, []Multiplication{
 		Multiplication{
 			Factor:   1.0,
-			LoadPart: &Pd,
+			LoadPart: Pd,
 		},
 	})
 

@@ -1,24 +1,26 @@
-package combination
+package combination_test
 
 import (
 	"fmt"
 	"os"
+
+	"github.com/Konstantin8105/load/combination"
 )
 
-type Load struct {
-	Name string
+type load struct {
+	name string
 }
 
-func (l Load) String() string {
-	return l.Name
+func (l load) LoadName() string {
+	return l.name
 }
 
 func Example() {
 	var (
-		DL    = Load{Name: "DL"}
-		Ls    = []Load{Load{Name: "L1"}, Load{Name: "L2"}, Load{Name: "L3"}}
-		Ts    = []Load{Load{Name: "T1"}, Load{Name: "T2"}, Load{Name: "T3"}, Load{Name: "T4"}}
-		combs = GenerateMain(DL, Ls, Ts)
+		DL    = combination.Load(load{name: "DL"})
+		Ls    = []combination.Load{load{name: "L1"}, load{name: "L2"}, load{name: "L3"}}
+		Ts    = []combination.Load{load{name: "T1"}, load{name: "T2"}, load{name: "T3"}, load{name: "T4"}}
+		combs = combination.GenerateMain(DL, Ls, Ts)
 	)
 	for i := range combs {
 		fmt.Fprintf(os.Stdout, "COMB %d\n%s\n", i+1, combs[i])
