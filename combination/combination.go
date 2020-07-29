@@ -47,6 +47,22 @@ func (s Summ) String() string {
 }
 
 func GenerateMain(Pd Load, Pl, Pt []Load) (combs []Summ) {
+	{ // check input load names
+		var names []string
+		names = append(names, Pd.LoadName())
+		for i := range Pl {
+			names = append(names, Pl[i].LoadName())
+		}
+		for i := range Pt {
+			names = append(names, Pt[i].LoadName())
+		}
+		sort.Strings(names)
+		for i := 1; i < len(names); i++ {
+			if names[i-1] == names[i] {
+				panic("Same load names : " + names[i])
+			}
+		}
+	}
 	generate := func(P []Load, ψ []float64) (comb []Summ) {
 		for _, indexes := range generateIndex(len(P), len(ψ)) {
 			var s Summ
