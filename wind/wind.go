@@ -63,8 +63,7 @@ func (wr Region) Name() string {
 	case RegionVII:
 		name = "VII"
 	default:
-		name = "undefine"
-		panic(wr)
+		name = fmt.Sprintf("user region: %6.1f", float64(wr))
 	}
 	return name
 }
