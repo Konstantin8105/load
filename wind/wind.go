@@ -114,6 +114,10 @@ const (
 	// аппаратов колонного типа, в том числе на железобетонных постаментах
 	LogDecriment15 LogDecriment = 0.15
 
+	// LogDecriment22 для стекла, а также смешанных сооружений, имеющих
+	// одновременно стальные и железобетонные несущие конструкции
+	LogDecriment22 LogDecriment = 0.22
+
 	// LogDecriment30 для железобетонных и каменных сооружений, а также
 	// для зданий со стальным каркасом при наличии ограждающих конструкций
 	LogDecriment30 LogDecriment = 0.30
@@ -220,32 +224,31 @@ func FactorZeta(zone Zone, ze float64) (ζ float64) {
 	return ζ10 * math.Pow(ze/10.0, -α)
 }
 
-// NaturalFrequencyLimit by table 11.5
-func NaturalFrequencyLimit(wr Region, ld LogDecriment) (Flim float64) {
-	for _, f := range []struct {
-		value30, value15 float64
-		wr               Region
-	}{
-		{0.85, 2.60, RegionIa},
-		{0.95, 2.90, RegionI},
-		{1.10, 3.40, RegionII},
-		{1.20, 3.80, RegionIII},
-		{1.40, 4.30, RegionIV},
-		{1.60, 5.00, RegionV},
-		{1.70, 5.60, RegionVI},
-		{1.90, 5.90, RegionVII},
-	} {
-		if wr != f.wr {
-			continue
-		}
-		if ld == LogDecriment30 {
-			return f.value30
-		}
-		if ld == LogDecriment15 {
-			return f.value15
-		}
+// Limit dimensionless period - by table 11.5
+func DimlessPeriodLimit(ld LogDecriment) float64 {
+	switch ld {
+	case LogDecriment15:
+		return 0.0077
+	case LogDecriment22:
+		return 0.0140
+	case LogDecriment30:
+		return 0.0230
 	}
 	panic("not implemented")
+}
+
+// NaturalFrequencyLimit by formula 11.9a
+func NaturalFrequencyLimit(zone Zone, wr Region, ld LogDecriment, z float64) (Flim float64) {
+
+	wo := float64(wr)
+	Tglim := DimlessPeriodLimit(ld)
+
+	// Для конструктивных элементов zэк — высота z, на которой они расположены;
+	// для зданий и сооружений zэк = 0,8h, где h — высота сооружений;
+	zek := z
+	k := FactorKz(zone, zek)
+
+	return math.Sqrt(wo*k*γf) / (940.0 * Tglim)
 }
 
 // FactorXiHz - коэффициент динамичности by pic 11.1 c учетом
@@ -261,7 +264,7 @@ func FactorXiHz(wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float6
 		ξi := int64(ξ)
 		ξ = float64(ξi) / 1000.0
 	}()
-	flim := NaturalFrequencyLimit(wr, ld)
+	flim := NaturalFrequencyLimit(zone, wr, ld, z)
 	// filter of natural frequency
 	{
 		s := make([]float64, len(hzs))
@@ -287,8 +290,8 @@ func FactorXiHz(wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float6
 	if 0 < len(hzs) {
 		ξ = 0.0 // reset value
 		for _, hz := range hzs {
-			ε := math.Sqrt(Wo*Kz*γf) / (940.0 * hz) // see formula 11.8
-			ξi := factorXi(ld, ε)
+			Tgi := math.Sqrt(Wo*Kz*γf) / (940.0 * hz) // see formula 11.8a
+			ξi := factorXi(ld, Tgi)
 			ξ += pow.E2(ξi)
 		}
 		ξ = math.Sqrt(ξ)
@@ -300,32 +303,69 @@ func FactorXiHz(wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float6
 }
 
 // factorXi - коэффициент динамичности by pic 11.1
-func factorXi(ld LogDecriment, ε float64) (ξ float64) {
+func factorXi(ld LogDecriment, Tg float64) (ξ float64) {
 	defer func() {
 		// предполагается, что коэффициент динамичности не может быть менее 1.0
 		if ξ < 1.0 {
 			ξ = 1.0
 		}
 	}()
+	var graph []float64
 	switch ld {
-	case LogDecriment30:
-		return 189848.0*pow.En(ε, 6) +
-			-109948.0*pow.En(ε, 5) +
-			+21029.30*pow.En(ε, 4) +
-			-1001.640*pow.En(ε, 3) +
-			-144.7600*pow.En(ε, 2) +
-			+22.09300*pow.En(ε, 1) +
-			0.920215
 	case LogDecriment15:
-		return -2.18484e+8*pow.En(ε, 8) +
-			+1.87100e+8*pow.En(ε, 7) +
-			-6.63893e+7*pow.En(ε, 6) +
-			+1.26134e+7*pow.En(ε, 5) +
-			-1.38471e+6*pow.En(ε, 4) +
-			+88640.3*pow.En(ε, 3) +
-			-3231.09*pow.En(ε, 2) +
-			+72.9729*pow.En(ε, 1) +
-			0.94572
+		graph = []float64{
+			0.000000, 1.00489,
+			0.002802, 1.19363,
+			0.006955, 1.33462,
+			0.010190, 1.40781,
+			0.020562, 1.59802,
+			0.050304, 1.96331,
+			0.100067, 2.32763,
+			0.150742, 2.58187,
+			0.199989, 2.77751,
+			0.250704, 2.92906,
+			0.300563, 3.04398,
+		}
+
+	case LogDecriment22:
+		graph = []float64{
+			0.000000, 1.00489,
+			0.002959, 1.14337,
+			0.006493, 1.22779,
+			0.010324, 1.29807,
+			0.020567, 1.43646,
+			0.050480, 1.69741,
+			0.100372, 1.98558,
+			0.150347, 2.18566,
+			0.200044, 2.33796,
+			0.250480, 2.44505,
+			0.299672, 2.53425,
+		}
+
+	case LogDecriment30:
+		graph = []float64{
+			0.000000, 1.00489,
+			0.003089, 1.08927,
+			0.006737, 1.16176,
+			0.010499, 1.22196,
+			0.020573, 1.32552,
+			0.050631, 1.54261,
+			0.100455, 1.77071,
+			0.150220, 1.91787,
+			0.200159, 2.04105,
+			0.250603, 2.12852,
+			0.299873, 2.20233,
+		}
+
+	default:
+		panic("not implemented")
+	}
+	for i := 2; i < len(graph); i += 2 {
+		x0, y0 := graph[i-2], graph[i-1]
+		x2, y2 := graph[i], graph[i+1]
+		if x0 <= Tg && Tg <= x2 {
+			return interpol(x0, Tg, x2, y0, y2)
+		}
 	}
 	panic("not implemented")
 }
@@ -582,4 +622,8 @@ func (st Struhale) Name() string {
 
 func (st Struhale) String() string {
 	return "Struhale number: " + st.Name()
+}
+
+func interpol(x0, x1, x2, y0, y2 float64) (y1 float64) {
+	return y0 + (y2-y0)*(x1-x0)/(x2-x0)
 }
