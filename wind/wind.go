@@ -19,13 +19,13 @@ type Region float64
 // Unit: Pa
 const (
 	RegionIa  Region = 170.0
-	RegionI   Region = 230.0
-	RegionII  Region = 300.0
-	RegionIII Region = 380.0
-	RegionIV  Region = 480.0
-	RegionV   Region = 600.0
-	RegionVI  Region = 730.0
-	RegionVII Region = 850.0
+	RegionI          = 230.0
+	RegionII         = 300.0
+	RegionIII        = 380.0
+	RegionIV         = 480.0
+	RegionV          = 600.0
+	RegionVI         = 730.0
+	RegionVII        = 850.0
 )
 
 // ListWo is list of all wind regions
@@ -44,34 +44,29 @@ func ListWo() []Region {
 
 // Name of wind region
 func (wr Region) Name() string {
-	var name string
-	switch wr {
-	case RegionIa:
-		name = "Ia"
-	case RegionI:
-		name = "I"
-	case RegionII:
-		name = "II"
-	case RegionIII:
-		name = "III"
-	case RegionIV:
-		name = "IV"
-	case RegionV:
-		name = "V"
-	case RegionVI:
-		name = "VI"
-	case RegionVII:
-		name = "VII"
-	default:
-		name = fmt.Sprintf("user region: %6.1f", float64(wr))
+	for _, v := range []struct {
+		r    Region
+		name string
+	}{
+		{RegionIa, "Ia"},
+		{RegionI, "I"},
+		{RegionII, "II"},
+		{RegionIII, "III"},
+		{RegionIV, "IV"},
+		{RegionV, "V"},
+		{RegionVI, "VI"},
+		{RegionVII, "VII"},
+	} {
+		if v.r == wr {
+			return v.name
+		}
 	}
-	return name
+	return "Undefined"
 }
 
 // String implementation of Stringer interface
 func (wr Region) String() string {
-	name := wr.Name()
-	return fmt.Sprintf("Wind region: %3s with value = %.1f Pa", name, float64(wr))
+	return fmt.Sprintf("Wind region: %3s with value = %.1f Pa", wr.Name(), float64(wr))
 }
 
 // Zone - тип местности
@@ -171,27 +166,57 @@ const γf = 1.40
 
 // FactorKz by table 11.2 and formula 11.4
 func FactorKz(zone Zone, ze float64) (kz float64) {
-	if ze <= 5.0 {
-		ze = 5.0
+	if !(zone == ZoneA || zone == ZoneB || zone == ZoneC) {
+		panic("undefined zone")
 	}
 	if 300.0 < ze {
 		panic(fmt.Errorf("ze = %f is too big", ze))
 	}
-	α, k10, ζ10 := zone.constants()
-	_ = ζ10
+	if ze <= 5.0 {
+		ze = 5.0
+	}
+	if ze < 10 {
+		// см. примечение к формуле 11.4
+		var k5, k10 float64
+		switch zone {
+		case ZoneA:
+			k5, k10 = 0.75, 1.00
+		case ZoneB:
+			k5, k10 = 0.50, 0.65
+		case ZoneC:
+			k5, k10 = 0.40, 0.40
+		}
+		return k5 + (k10-k5)*(ze-5.0)/(10.0-5.0)
+	}
+	α, k10, _ := zone.constants()
 	return k10 * math.Pow(ze/10.0, 2.0*α)
 }
 
 // FactorZeta by table 11.4 and formula 11.6
 func FactorZeta(zone Zone, ze float64) (ζ float64) {
-	if ze <= 5.0 {
-		ze = 5.0
+	if !(zone == ZoneA || zone == ZoneB || zone == ZoneC) {
+		panic("undefined zone")
 	}
 	if 300.0 < ze {
 		panic(fmt.Errorf("ze = %f is too big", ze))
 	}
-	α, k10, ζ10 := zone.constants()
-	_ = k10
+	if ze <= 5.0 {
+		ze = 5.0
+	}
+	if ze < 10 {
+		// см. примечение к формуле 11.4
+		var c5, c10 float64
+		switch zone {
+		case ZoneA:
+			c5, c10 = 0.85, 0.76
+		case ZoneB:
+			c5, c10 = 1.22, 1.06
+		case ZoneC:
+			c5, c10 = 1.78, 1.78
+		}
+		return c5 + (c10-c5)*(ze-5.0)/(10.0-5.0)
+	}
+	α, _, ζ10 := zone.constants()
 	return ζ10 * math.Pow(ze/10.0, -α)
 }
 
