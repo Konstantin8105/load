@@ -3,9 +3,7 @@ package wind
 import (
 	"bytes"
 	"fmt"
-	"math"
 	"os"
-	"testing"
 	"text/tabwriter"
 )
 
@@ -48,49 +46,23 @@ func ExampleRegion() {
 	// Wind region: VII with value = 850.0 Pa
 }
 
-func TestFactorXi(t *testing.T) {
-	tcs := []struct {
-		e          float64
-		xi30, xi15 float64
-	}{
-		{0.000000, 1.0000, 1.0000},
-		{0.005237, 1.0274, 1.2491},
-		{0.014249, 1.1977, 1.5250},
-		{0.035085, 1.5048, 1.8328},
-		{0.039403, 1.5563, 1.8790},
-		{0.063548, 1.7099, 2.1072},
-		{0.065975, 1.7211, 2.1297},
-		{0.082751, 1.8027, 2.2833},
-		{0.095881, 1.8635, 2.3682},
-		{0.106078, 1.9033, 2.4266},
-		{0.124738, 1.9659, 2.5280},
-		{0.139229, 2.0174, 2.6007},
-		{0.158098, 2.0785, 2.6784},
-		{0.164401, 2.0944, 2.7031},
-		{0.186549, 2.1297, 2.7968},
-		{0.200214, 2.1299, 2.8167},
-		{0.200469, 2.1297, 2.8178},
+func ExampleFactorXi() {
+	for Tg := 0.0; Tg <= 0.3; Tg = Tg + 0.05 {
+		fmt.Fprintf(os.Stdout, "%.5f %.3f %.3f %.3f\n",
+			Tg,
+			factorXi(LogDecriment15, Tg),
+			factorXi(LogDecriment22, Tg),
+			factorXi(LogDecriment30, Tg),
+		)
 	}
-	isOk := func(x1, x2 float64, t *testing.T) error {
-		eps := 1.0 / 100.0 // 1%
-		act := math.Abs((x1 - x2) / x1)
-		if eps < act {
-			return fmt.Errorf("Not valid precision: %.2f%% (%.4f,%.4f)", act*100.0, x1, x2)
-		}
-		return nil
-	}
-	for index, tc := range tcs {
-		t.Run(fmt.Sprintf("%d", index), func(t *testing.T) {
-			xi30 := factorXi(LogDecriment30, tc.e)
-			xi15 := factorXi(LogDecriment15, tc.e)
-			if err := isOk(xi30, tc.xi30, t); err != nil {
-				t.Errorf("xi30 : %v", err)
-			}
-			if err := isOk(xi15, tc.xi15, t); err != nil {
-				t.Errorf("xi15 : %v", err)
-			}
-		})
-	}
+	// Output:
+	// 0.00000 1.005 1.005 1.005
+	// 0.05000 1.960 1.693 1.538
+	// 0.10000 2.327 1.983 1.769
+	// 0.15000 2.578 2.184 1.917
+	// 0.20000 2.778 2.338 2.041
+	// 0.25000 2.927 2.444 2.127
+	// 0.30000 3.044 2.534 2.202
 }
 
 func ExampleFactorKz() {

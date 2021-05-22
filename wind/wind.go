@@ -324,7 +324,7 @@ func factorXi(ld LogDecriment, Tg float64) (ξ float64) {
 			0.150742, 2.58187,
 			0.199989, 2.77751,
 			0.250704, 2.92906,
-			0.300563, 3.04398,
+			0.300000, 3.04398,
 		}
 
 	case LogDecriment22:
@@ -339,7 +339,7 @@ func factorXi(ld LogDecriment, Tg float64) (ξ float64) {
 			0.150347, 2.18566,
 			0.200044, 2.33796,
 			0.250480, 2.44505,
-			0.299672, 2.53425,
+			0.300000, 2.53425,
 		}
 
 	case LogDecriment30:
@@ -354,7 +354,7 @@ func factorXi(ld LogDecriment, Tg float64) (ξ float64) {
 			0.150220, 1.91787,
 			0.200159, 2.04105,
 			0.250603, 2.12852,
-			0.299873, 2.20233,
+			0.300000, 2.20233,
 		}
 
 	default:
