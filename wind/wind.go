@@ -10,6 +10,7 @@ import (
 	"math"
 	"sort"
 
+	"github.com/Konstantin8105/graph"
 	"github.com/Konstantin8105/pow"
 )
 
@@ -310,64 +311,62 @@ func factorXi(ld LogDecriment, Tg float64) (ξ float64) {
 			ξ = 1.0
 		}
 	}()
-	var graph []float64
+	var data []graph.Point
 	switch ld {
 	case LogDecriment15:
-		graph = []float64{
-			0.000000, 1.00489,
-			0.002802, 1.19363,
-			0.006955, 1.33462,
-			0.010190, 1.40781,
-			0.020562, 1.59802,
-			0.050304, 1.96331,
-			0.100067, 2.32763,
-			0.150742, 2.58187,
-			0.199989, 2.77751,
-			0.250704, 2.92906,
-			0.300000, 3.04398,
+		data = []graph.Point{
+			{0.000000, 1.00489},
+			{0.002802, 1.19363},
+			{0.006955, 1.33462},
+			{0.010190, 1.40781},
+			{0.020562, 1.59802},
+			{0.050304, 1.96331},
+			{0.100067, 2.32763},
+			{0.150742, 2.58187},
+			{0.199989, 2.77751},
+			{0.250704, 2.92906},
+			{0.300000, 3.04398},
 		}
 
 	case LogDecriment22:
-		graph = []float64{
-			0.000000, 1.00489,
-			0.002959, 1.14337,
-			0.006493, 1.22779,
-			0.010324, 1.29807,
-			0.020567, 1.43646,
-			0.050480, 1.69741,
-			0.100372, 1.98558,
-			0.150347, 2.18566,
-			0.200044, 2.33796,
-			0.250480, 2.44505,
-			0.300000, 2.53425,
+		data = []graph.Point{
+			{0.000000, 1.00489},
+			{0.002959, 1.14337},
+			{0.006493, 1.22779},
+			{0.010324, 1.29807},
+			{0.020567, 1.43646},
+			{0.050480, 1.69741},
+			{0.100372, 1.98558},
+			{0.150347, 2.18566},
+			{0.200044, 2.33796},
+			{0.250480, 2.44505},
+			{0.300000, 2.53425},
 		}
 
 	case LogDecriment30:
-		graph = []float64{
-			0.000000, 1.00489,
-			0.003089, 1.08927,
-			0.006737, 1.16176,
-			0.010499, 1.22196,
-			0.020573, 1.32552,
-			0.050631, 1.54261,
-			0.100455, 1.77071,
-			0.150220, 1.91787,
-			0.200159, 2.04105,
-			0.250603, 2.12852,
-			0.300000, 2.20233,
+		data = []graph.Point{
+			{0.000000, 1.00489},
+			{0.003089, 1.08927},
+			{0.006737, 1.16176},
+			{0.010499, 1.22196},
+			{0.020573, 1.32552},
+			{0.050631, 1.54261},
+			{0.100455, 1.77071},
+			{0.150220, 1.91787},
+			{0.200159, 2.04105},
+			{0.250603, 2.12852},
+			{0.300000, 2.20233},
 		}
 
 	default:
 		panic("not implemented")
 	}
-	for i := 2; i < len(graph); i += 2 {
-		x0, y0 := graph[i-2], graph[i-1]
-		x2, y2 := graph[i], graph[i+1]
-		if x0 <= Tg && Tg <= x2 {
-			return interpol(x0, Tg, x2, y0, y2)
-		}
+
+	ξ, err := graph.Find(Tg, data...)
+	if err != nil {
+		panic(err)
 	}
-	panic("not implemented")
+	return
 }
 
 // Plate плоскость
@@ -399,90 +398,17 @@ func NuPlates(b, h, a float64, pl Plate) (ρ, χ float64) {
 // FactorNu Коэффициент пространственной корреляции пульсаций давления
 // by table 11.6
 func FactorNu(ρ, χ float64) (ν float64) {
-	const (
-		col = 7
-		row = 7
-	)
-	var (
-		header = [col]float64{5, 10, 20, 40, 80, 160, 350}
-		ro     = [row]float64{0.1, 5, 10, 20, 40, 80, 160}
-		data   = [row][col]float64{
-			[col]float64{0.95, 0.92, 0.88, 0.83, 0.76, 0.67, 0.56},
-			[col]float64{0.89, 0.87, 0.84, 0.80, 0.73, 0.65, 0.54},
-			[col]float64{0.85, 0.84, 0.81, 0.77, 0.71, 0.64, 0.53},
-			[col]float64{0.80, 0.78, 0.76, 0.73, 0.68, 0.61, 0.51},
-			[col]float64{0.72, 0.72, 0.70, 0.67, 0.63, 0.57, 0.48},
-			[col]float64{0.63, 0.63, 0.61, 0.59, 0.56, 0.51, 0.44},
-			[col]float64{0.53, 0.53, 0.52, 0.50, 0.47, 0.44, 0.38},
-		}
-	)
-
-	// check outside table
-	if χ < header[0] {
-		χ = header[0]
-	}
-	if header[col-1] < χ {
-		χ = header[col-1]
-	}
-	if ρ < ro[0] {
-		ρ = ro[0]
-	}
-	if ro[row-1] < ρ {
-		ρ = ro[row-1]
-	}
-	// parameters now in table
-
-	// generate a column
-	var xicol [row]float64
-	colIndex := col - 1
-	for c := 0; c < col; c++ {
-		if χ == header[c] {
-			colIndex = c
-			break
-		}
-		if c != 0 {
-			if header[c-1] < χ && χ < header[c] {
-				colIndex = c
-				break
-			}
-		}
-	}
-	if colIndex == 0 {
-		for r := 0; r < row; r++ {
-			xicol[r] = data[r][colIndex]
-		}
-	} else {
-		for r := 0; r < row; r++ {
-			xicol[r] = data[r][colIndex-1] +
-				(data[r][colIndex]-data[r][colIndex-1])*
-					(χ-header[colIndex-1])/
-					(header[colIndex]-header[colIndex-1])
-		}
-	}
-
-	// find by row
-	rowIndex := row - 1
-	for r := 0; r < row; r++ {
-		if ρ == ro[r] {
-			rowIndex = r
-			break
-		}
-		if r != 0 {
-			if ro[r-1] < ρ && ρ < ro[r] {
-				rowIndex = r
-				break
-			}
-		}
-	}
-	if rowIndex == 0 {
-		ν = xicol[rowIndex]
-	} else {
-		ν = xicol[rowIndex-1] +
-			(xicol[rowIndex]-xicol[rowIndex-1])*
-				(ρ-ro[rowIndex-1])/
-				(ro[rowIndex]-ro[rowIndex-1])
-	}
-	return
+	return interpolTable(χ, ρ,  8, 8, []float64{
+		-0.01, 0.00, 5.00, 10.0, 20.0, 40.0, 80.0, 160., 350.,
+		0.000, 0.95, 0.95, 0.92, 0.88, 0.83, 0.76, 0.67, 0.56,
+		0.100, 0.95, 0.95, 0.92, 0.88, 0.83, 0.76, 0.67, 0.56,
+		5.000, 0.89, 0.89, 0.87, 0.84, 0.80, 0.73, 0.65, 0.54,
+		10.00, 0.85, 0.85, 0.84, 0.81, 0.77, 0.71, 0.64, 0.53,
+		20.00, 0.80, 0.80, 0.78, 0.76, 0.73, 0.68, 0.61, 0.51,
+		40.00, 0.72, 0.72, 0.72, 0.70, 0.67, 0.63, 0.57, 0.48,
+		80.00, 0.63, 0.63, 0.63, 0.61, 0.59, 0.56, 0.51, 0.44,
+		160.0, 0.53, 0.53, 0.53, 0.52, 0.50, 0.47, 0.44, 0.38,
+	})
 }
 
 // GraphB14 Реализованый алгоритм упрощенный, но в худшую сторону.
@@ -529,14 +455,16 @@ func GraphB17(d, Δ, Re float64) (Cx float64) {
 		Δd = 1e-5
 	}
 	if 1e-2 < Δd {
-		return 1.2
+		return 1.1
 	}
 
 	Cx = 0.4
 	if Re < 3.0e5 {
+		// TODO: add points
 		Cx = math.Max(Cx, 3.01192*pow.E2(x)-33.6354*x+94.2379)
 	}
 
+	// TODO: add points
 	Cx5 := -0.0730890*pow.E2(x) + 1.178010*x - 3.967380
 	Cx2 := -0.0362124*pow.E2(x) + 0.530084*x - 0.844029
 	power := math.Log10(Δd) // for example: -5...-2
@@ -626,4 +554,58 @@ func (st Struhale) String() string {
 
 func interpol(x0, x1, x2, y0, y2 float64) (y1 float64) {
 	return y0 + (y2-y0)*(x1-x0)/(x2-x0)
+}
+
+// example of data:
+//   XXX 1 2 3 4 5
+//	4    2 3 3 3 2
+//	5    4 5 6 8 8
+// example of x,y:
+//	2.5, 4.5
+func interpolTable(x, y float64, xSize, ySize int, xyData []float64) (z float64) {
+	if len(xyData) != xSize*ySize+xSize+ySize+1 {
+		panic("wrong size")
+	}
+	xList := xyData[1 : xSize+1]
+	yList := make([]float64, ySize)
+	for i := 0; i < ySize; i++ {
+		yList[i] = xyData[(xSize+1)*(i+1)]
+	}
+	data := make([][]float64, ySize)
+	for i := 0; i < ySize; i++ {
+		data[i] = make([]float64, xSize)
+	}
+	for r := 0; r < ySize; r++ {
+		for c := 0; c < xSize; c++ {
+			data[r][c] = xyData[(xSize+1)*(r+1)+1+c]
+		}
+	}
+	// check outside table
+	if x < xList[0] {
+		panic(fmt.Errorf("less xList: %e < %e", x, xList[0]))
+	}
+	if xList[len(xList)-1] < x {
+		panic("more xList")
+	}
+	if y < yList[0] {
+		panic("less yList")
+	}
+	if yList[len(yList)-1] < y {
+		panic(fmt.Errorf("less yList: %e < %v", y, yList))
+	}
+	// parameters now in table
+	// generate a column
+	for i := 1; i < xSize; i++ {
+		if xList[i-1] <= x && x <= xList[i] {
+			for j := 1; j < ySize; j++ {
+				if yList[j-1] <= y && y <= yList[j] {
+					z0 := interpol(xList[i-1], x, xList[i], data[j-1][i-1], data[j-1][i])
+					z2 := interpol(xList[i-1], x, xList[i], data[j][i-1], data[j][i])
+					z:= interpol(yList[j-1], y, yList[j], z0, z2)
+					return z
+				}
+			}
+		}
+	}
+	panic(fmt.Errorf("[%e,%e]", x, y))
 }
