@@ -398,7 +398,7 @@ func NuPlates(b, h, a float64, pl Plate) (ρ, χ float64) {
 // FactorNu Коэффициент пространственной корреляции пульсаций давления
 // by table 11.6
 func FactorNu(ρ, χ float64) (ν float64) {
-	return interpolTable(χ, ρ,  8, 8, []float64{
+	return interpolTable(χ, ρ, 8, 8, []float64{
 		-0.01, 0.00, 5.00, 10.0, 20.0, 40.0, 80.0, 160., 350.,
 		0.000, 0.95, 0.95, 0.92, 0.88, 0.83, 0.76, 0.67, 0.56,
 		0.100, 0.95, 0.95, 0.92, 0.88, 0.83, 0.76, 0.67, 0.56,
@@ -480,44 +480,14 @@ func GraphB23(λe, ϕ float64) (Kλ float64) {
 	if 200 < λe {
 		λe = 200
 	}
-	type line struct {
-		ϕ                       float64
-		Kλ1, Kλ10, Kλ100, Kλ200 float64
-	}
-	K := []line{
-		{ϕ: 0.00, Kλ1: 1.00, Kλ10: 1.00, Kλ100: 1.00, Kλ200: 1.00},
-		{ϕ: 0.10, Kλ1: 0.98, Kλ10: 0.99, Kλ100: 0.99, Kλ200: 1.00},
-		{ϕ: 0.50, Kλ1: 0.88, Kλ10: 0.91, Kλ100: 0.98, Kλ200: 1.00},
-		{ϕ: 0.90, Kλ1: 0.82, Kλ10: 0.87, Kλ100: 0.97, Kλ200: 1.00},
-		{ϕ: 0.95, Kλ1: 0.73, Kλ10: 0.80, Kλ100: 0.96, Kλ200: 1.00},
-		{ϕ: 1.00, Kλ1: 0.60, Kλ10: 0.70, Kλ100: 0.95, Kλ200: 1.00},
-	}
-	var l line // actual line
-	for index := 1; index < len(K); index++ {
-		if K[index-1].ϕ <= ϕ && ϕ <= K[index].ϕ {
-			l.Kλ1 = K[index-1].Kλ1 + (K[index].Kλ1-K[index-1].Kλ1)*
-				(ϕ-K[index-1].ϕ)/(K[index].ϕ-K[index-1].ϕ)
-			l.Kλ10 = K[index-1].Kλ10 + (K[index].Kλ10-K[index-1].Kλ10)*
-				(ϕ-K[index-1].ϕ)/(K[index].ϕ-K[index-1].ϕ)
-			l.Kλ100 = K[index-1].Kλ100 + (K[index].Kλ100-K[index-1].Kλ100)*
-				(ϕ-K[index-1].ϕ)/(K[index].ϕ-K[index-1].ϕ)
-			l.Kλ200 = K[index-1].Kλ200 + (K[index].Kλ200-K[index-1].Kλ200)*
-				(ϕ-K[index-1].ϕ)/(K[index].ϕ-K[index-1].ϕ)
-		}
-	}
-	lλe := math.Log10(λe)
-	if 1 <= λe && λe <= 10 {
-		return l.Kλ1 + (l.Kλ10-l.Kλ1)*(lλe-math.Log10(1.0))/
-			(math.Log10(10.0)-math.Log10(1.0))
-	} else if 10 <= λe && λe <= 100 {
-		return l.Kλ10 + (l.Kλ100-l.Kλ10)*(lλe-math.Log10(10.0))/
-			(math.Log10(100.0)-math.Log10(10.0))
-	} else if 100 <= λe && λe <= 200 {
-		return l.Kλ100 + (l.Kλ200-l.Kλ100)*(lλe-math.Log10(100.0))/
-			(math.Log10(200.0)-math.Log10(100.0))
-	}
-
-	return 1.0
+	return interpolTable(math.Log10(λe), ϕ, 4, 5, []float64{
+		-0.1, 0.00, 1.00, 2.00, 2.30103, //1.00, 10.0, 100., 200.,
+		0.10, 0.98, 0.99, 0.99, 1.00,
+		0.50, 0.88, 0.91, 0.98, 1.00,
+		0.90, 0.82, 0.87, 0.97, 1.00,
+		0.95, 0.73, 0.80, 0.96, 1.00,
+		1.00, 0.60, 0.70, 0.95, 1.00,
+	})
 }
 
 const (
@@ -601,7 +571,7 @@ func interpolTable(x, y float64, xSize, ySize int, xyData []float64) (z float64)
 				if yList[j-1] <= y && y <= yList[j] {
 					z0 := interpol(xList[i-1], x, xList[i], data[j-1][i-1], data[j-1][i])
 					z2 := interpol(xList[i-1], x, xList[i], data[j][i-1], data[j][i])
-					z:= interpol(yList[j-1], y, yList[j], z0, z2)
+					z := interpol(yList[j-1], y, yList[j], z0, z2)
 					return z
 				}
 			}
