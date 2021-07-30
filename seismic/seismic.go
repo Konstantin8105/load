@@ -224,9 +224,9 @@ func (f Factors) Acceleration() (acs []Accelerate, ratios [3]float64) {
 	}
 
 	fmt.Fprintf(w, "\n")
-	fmt.Fprintf(w, "Коэффициенты соотношения к расчету КЗ:\n")
+	fmt.Fprintf(w, "Коэффициенты соотношения к расчету РЗ:\n")
 
-	fmt.Fprintf(w, "(ускорение для РЗ при K1 = K1)  / (ускорение для РЗ при K1 = K1)\t%.3f\n", ratios[0])
+	fmt.Fprintf(w, "(ускорение для РЗ при K1 = K1)  / (ускорение для РЗ при K1 = 1.0)\t%.3f\n", ratios[0])
 	fmt.Fprintf(w, "(ускорение для РЗ при K1 = 1.0) / (ускорение для РЗ при K1 = 1.0)\t%.3f\n", ratios[1])
 
 	w.Flush()
