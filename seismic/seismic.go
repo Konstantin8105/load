@@ -120,6 +120,9 @@ type Accelerate struct {
 	// Period - период колебания
 	Period float64
 
+	// Betta - значение бетта по рисунку 5.2
+	Betta float64
+
 	// Value - значение ускорения
 	// Value[0] - K0 = K0 при РЗ, K1 = K1
 	// Value[1] - K0 = K0 при РЗ, K1 = 1.0 для деформаций
@@ -129,9 +132,9 @@ type Accelerate struct {
 
 // Acceleration - расчитывает ускорения для задания сейсмической нагрузки
 // 	ratios[3] - коэффициенты относительно расчета на КЗ, при этом
-//		ratios[0] - (ускорение для РЗ при K1 = K1) деленное на (ускорение для КЗ)
-//		ratios[1] - (ускорение для РЗ при K1 = 1.0) деленное на (ускорение для КЗ)
-//		ratios[2] - всегда единица
+//		ratios[0] - (ускорение для РЗ при K1 = K1) деленное на (ускорение свободного падения)
+//		ratios[1] - (ускорение для РЗ при K1 = 1.0) деленное на (ускорение свободного падения)
+//		ratios[2] - (ускорение для КЗ) деленное на (ускорение свободного падения)
 func (f Factors) Acceleration() (acs []Accelerate, ratios [3]float64) {
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
@@ -216,22 +219,23 @@ func (f Factors) Acceleration() (acs []Accelerate, ratios [3]float64) {
 		)
 		acs = append(acs, Accelerate{
 			Period: period,
+			Betta:  β,
 			Value:  acceleration,
 		})
 	}
 
 	ratios = [3]float64{
-		K0[0] * K1 * Kψ / (K0[1] * 1. * Kψ),
-		K0[0] * 1. * Kψ / (K0[1] * 1. * Kψ),
-		K0[1] * 1. * Kψ / (K0[1] * 1. * Kψ),
+		K0[0] * K1 * Kψ * A / 9.806,
+		K0[0] * 1. * Kψ * A / 9.806,
+		K0[1] * 1. * Kψ * A / 9.806,
 	}
 
 	fmt.Fprintf(w, "\n")
 	fmt.Fprintf(w, "Коэффициенты соотношения к расчету КЗ:\n")
 
-	fmt.Fprintf(w, "(ускорение для РЗ при K1 = K1)  / (ускорение для КЗ)\t%.3f\n", ratios[0])
-	fmt.Fprintf(w, "(ускорение для РЗ при K1 = 1.0) / (ускорение для КЗ)\t%.3f\n", ratios[1])
-	fmt.Fprintf(w, "(ускорение для КЗ)              / (ускорение для КЗ)\t%.3f\n", ratios[2])
+	fmt.Fprintf(w, "(ускорение для РЗ при K1 = K1)  / (ускорение свободного падения)\t%.3f\n", ratios[0])
+	fmt.Fprintf(w, "(ускорение для РЗ при K1 = 1.0) / (ускорение свободного падения)\t%.3f\n", ratios[1])
+	fmt.Fprintf(w, "(ускорение для КЗ)              / (ускорение свободного падения)\t%.3f\n", ratios[2])
 
 	w.Flush()
 	fmt.Fprintf(os.Stdout, "%s", buf.String())
