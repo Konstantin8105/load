@@ -191,13 +191,13 @@ func (f Factors) Acceleration() (acs []Accelerate, ratios [3]float64) {
 	fmt.Fprintf(w, "Коэффициент A по пункту 5.5:\t%.2f\tм/кв.сек\n", A)
 
 	fmt.Fprintf(w, "\n")
-	fmt.Fprintf(w, "Период\t|\tβ\t|\tУскорение\t|\tУскорение\t|\tУскорение\t|\n")
-	fmt.Fprintf(w, " \t|\t \t|\tпри РЗ\t|\tпри РЗ\t|\tпри КЗ\t|\n")
-	fmt.Fprintf(w, " \t|\t \t|\tK0=%.2f\t|\tK0=%.2f\t|\tK0=%.2f\t|\n",
-		K0[0], K0[0], K0[1])
-	fmt.Fprintf(w, " \t|\t \t|\tK1=%.2f\t|\tK1=%.2f\t|\tK1=%.2f\t|\n",
-		K1, 1.0, 1.0)
-	fmt.Fprintf(w, "сек\t|\t \t|\tм/сек^2\t|\tм/сек^2\t|\tм/сек^2\t|\n")
+	fmt.Fprintf(w, "Период\t|\tβ\t|\tУскорение\t|\tУскорение\t|\n")
+	fmt.Fprintf(w, " \t|\t \t|\tпри РЗ\t|\tпри РЗ\t|\n")
+	fmt.Fprintf(w, " \t|\t \t|\tK0=%.2f\t|\tK0=%.2f\t|\n",
+		K0[0], K0[0])
+	fmt.Fprintf(w, " \t|\t \t|\tK1=%.2f\t|\tK1=%.2f\t|\n",
+		K1, 1.0)
+	fmt.Fprintf(w, "сек\t|\t \t|\tм/сек^2\t|\tм/сек^2\t|\n")
 	βs := Betta(f.Grount)
 	for _, β := range βs {
 		period := β[0]
@@ -205,13 +205,11 @@ func (f Factors) Acceleration() (acs []Accelerate, ratios [3]float64) {
 		acceleration := [3]float64{
 			K0[0] * K1 * Kψ * A * β,
 			K0[0] * 1. * Kψ * A * β, // for deformation, K1 = 1
-			K0[1] * 1. * Kψ * A * β, // for deformation, K1 = 1
 		}
-		fmt.Fprintf(w, "%8.2f\t|\t%6.4f\t|\t%6.3f\t|\t%6.3f\t|\t%6.3f\t|\n",
+		fmt.Fprintf(w, "%8.2f\t|\t%6.4f\t|\t%6.3f\t|\t%6.3f\t|\n",
 			period, β,
 			acceleration[0],
 			acceleration[1],
-			acceleration[2],
 		)
 		acs = append(acs, Accelerate{
 			Period: period,
@@ -223,7 +221,6 @@ func (f Factors) Acceleration() (acs []Accelerate, ratios [3]float64) {
 	ratios = [3]float64{
 		K0[0] * K1 * Kψ * A / (K0[0] * 1. * Kψ * A),
 		K0[0] * 1. * Kψ * A / (K0[0] * 1. * Kψ * A),
-		K0[1] * 1. * Kψ * A / (K0[0] * 1. * Kψ * A),
 	}
 
 	fmt.Fprintf(w, "\n")
@@ -231,7 +228,6 @@ func (f Factors) Acceleration() (acs []Accelerate, ratios [3]float64) {
 
 	fmt.Fprintf(w, "(ускорение для РЗ при K1 = K1)  / (ускорение для РЗ при K1 = K1)\t%.3f\n", ratios[0])
 	fmt.Fprintf(w, "(ускорение для РЗ при K1 = 1.0) / (ускорение для РЗ при K1 = 1.0)\t%.3f\n", ratios[1])
-	fmt.Fprintf(w, "(ускорение для КЗ)              / (ускорение для РЗ при K1 = K1)\t%.3f\n", ratios[2])
 
 	w.Flush()
 	fmt.Fprintf(os.Stdout, "%s", buf.String())
