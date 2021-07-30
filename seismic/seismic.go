@@ -131,10 +131,6 @@ type Accelerate struct {
 }
 
 // Acceleration - расчитывает ускорения для задания сейсмической нагрузки
-// 	ratios[3] - коэффициенты относительно расчета на КЗ, при этом
-//		ratios[0] - (ускорение для РЗ при K1 = K1) деленное на (ускорение свободного падения)
-//		ratios[1] - (ускорение для РЗ при K1 = 1.0) деленное на (ускорение свободного падения)
-//		ratios[2] - (ускорение для КЗ) деленное на (ускорение свободного падения)
 func (f Factors) Acceleration() (acs []Accelerate, ratios [3]float64) {
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
@@ -225,17 +221,17 @@ func (f Factors) Acceleration() (acs []Accelerate, ratios [3]float64) {
 	}
 
 	ratios = [3]float64{
-		K0[0] * K1 * Kψ * A / 9.806,
-		K0[0] * 1. * Kψ * A / 9.806,
-		K0[1] * 1. * Kψ * A / 9.806,
+		K0[0] * K1 * Kψ * A / (K0[0] * 1. * Kψ * A),
+		K0[0] * 1. * Kψ * A / (K0[0] * 1. * Kψ * A),
+		K0[1] * 1. * Kψ * A / (K0[0] * 1. * Kψ * A),
 	}
 
 	fmt.Fprintf(w, "\n")
 	fmt.Fprintf(w, "Коэффициенты соотношения к расчету КЗ:\n")
 
-	fmt.Fprintf(w, "(ускорение для РЗ при K1 = K1)  / (ускорение свободного падения)\t%.3f\n", ratios[0])
-	fmt.Fprintf(w, "(ускорение для РЗ при K1 = 1.0) / (ускорение свободного падения)\t%.3f\n", ratios[1])
-	fmt.Fprintf(w, "(ускорение для КЗ)              / (ускорение свободного падения)\t%.3f\n", ratios[2])
+	fmt.Fprintf(w, "(ускорение для РЗ при K1 = K1)  / (ускорение для РЗ при K1 = K1)\t%.3f\n", ratios[0])
+	fmt.Fprintf(w, "(ускорение для РЗ при K1 = 1.0) / (ускорение для РЗ при K1 = 1.0)\t%.3f\n", ratios[1])
+	fmt.Fprintf(w, "(ускорение для КЗ)              / (ускорение для РЗ при K1 = K1)\t%.3f\n", ratios[2])
 
 	w.Flush()
 	fmt.Fprintf(os.Stdout, "%s", buf.String())
