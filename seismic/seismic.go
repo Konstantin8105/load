@@ -131,7 +131,7 @@ type Accelerate struct {
 }
 
 // Acceleration - расчитывает ускорения для задания сейсмической нагрузки
-func (f Factors) Acceleration() (acs []Accelerate, ratios [2]float64, K0_KZ float64) {
+func (f Factors) Acceleration() (acs []Accelerate, ratios [2]float64, K0_KZ, A float64) {
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
 
@@ -178,7 +178,6 @@ func (f Factors) Acceleration() (acs []Accelerate, ratios [2]float64, K0_KZ floa
 
 	fmt.Fprintf(w, "\n")
 	fmt.Fprintf(w, "Расчёт:\n")
-	var A float64
 	switch f.DesignSeismicSite {
 	case 7:
 		A = 1.0 // м/кв.сек

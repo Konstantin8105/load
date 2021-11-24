@@ -8,10 +8,11 @@ func Example() {
 		K1:                0.25,
 		Kψrow:             3,
 	}
-	acs, rs, k0_kz := f.Acceleration()
+	acs, rs, k0_kz, A := f.Acceleration()
 	_ = acs
 	_ = rs
 	_ = k0_kz
+	_ = A
 	// Output:
 	// Расчет ускорений для сейсмической нагрузки:
 	// Расчетная сейсмичность площадки строительства: 8    Баллов |
