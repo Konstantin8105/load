@@ -5,17 +5,15 @@ import (
 	"sort"
 )
 
-type Load interface {
-	LoadName() string
-}
+type Load = int
 
 type Multiplication struct {
 	Factor   float64
-	LoadPart Load
+	LoadPart int
 }
 
 func (m Multiplication) String() string {
-	return fmt.Sprintf("%.2f %s", m.Factor, m.LoadPart.LoadName())
+	return fmt.Sprintf("%.2f %04d", m.Factor, m.LoadPart)
 }
 
 type Summ []Multiplication
@@ -48,18 +46,14 @@ func (s Summ) String() string {
 
 func GenerateMain(Pd Load, Pl, Pt []Load) (combs []Summ) {
 	{ // check input load names
-		var names []string
-		names = append(names, Pd.LoadName())
-		for i := range Pl {
-			names = append(names, Pl[i].LoadName())
-		}
-		for i := range Pt {
-			names = append(names, Pt[i].LoadName())
-		}
-		sort.Strings(names)
+		var names []Load
+		names = append(names, Pd)
+		names = append(names, Pl...)
+		names = append(names, Pt...)
+		sort.Ints(names)
 		for i := 1; i < len(names); i++ {
 			if names[i-1] == names[i] {
-				panic("Same load names : " + names[i])
+				panic(fmt.Errorf("Same load names : %v", names[i]))
 			}
 		}
 	}
@@ -86,7 +80,7 @@ func GenerateMain(Pd Load, Pl, Pt []Load) (combs []Summ) {
 				if comb[ic][i].Factor != comb[ic][j].Factor {
 					return false
 				}
-				return comb[ic][i].LoadPart.LoadName() < comb[ic][j].LoadPart.LoadName()
+				return comb[ic][i].LoadPart < comb[ic][j].LoadPart
 			})
 		}
 		// check on unique summ
