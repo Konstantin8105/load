@@ -1,6 +1,9 @@
 package deformation
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 // СП 20.13330.2016
 // Д.2 Предельные прогибы
@@ -9,6 +12,10 @@ import "fmt"
 //
 // length unit: meter
 func Vertical(l float64) (deformMax float64, err error) {
+	l = math.Abs(l)
+	if eps := 1e-5; l < eps {
+		l = eps
+	}
 	ds := [][2]float64{
 		{0.000, 1.0 / 120.0},
 		{1.000, 1.0 / 120.0},

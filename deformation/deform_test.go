@@ -8,7 +8,7 @@ import (
 
 func Example() {
 	// corner lenghts
-	L := []float64{0.0001, 1.000, 3.000, 6.000, 12.000, 24.000}
+	L := []float64{0.000, 1.000, 3.000, 6.000, 12.000, 24.000}
 	// middle points
 	for i, size := 1, len(L); i < size; i++ {
 		L = append(L, (L[i]+L[i-1])*0.5)
@@ -23,11 +23,11 @@ func Example() {
 			panic(err)
 		}
 		ratio := L[i] / dmax
-		fmt.Fprintf(os.Stdout, "%8.3f %5.3f 1.0/%5.1f\n", L[i], dmax, ratio)
+		fmt.Fprintf(os.Stdout, "%8.3f %05.3f 1.0/%05.1f\n", L[i], dmax, ratio)
 	}
 	// Output:
 	// L,mm  D,mm
-	//    0.000 0.000 1.0/120.0
+	//    0.000 0.000 1.0/000.0
 	//    0.500 0.004 1.0/120.0
 	//    1.000 0.008 1.0/120.0
 	//    2.000 0.015 1.0/133.3
