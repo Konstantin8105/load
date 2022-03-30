@@ -89,7 +89,7 @@ func Frame(zone Zone, wr Region, ld LogDecriment, h float64, hzs []float64) (
 
 	// generate height sections
 	zo := 0.0
-	zs := splitHeigth(zo, h)
+	zs := SplitHeigth(zo, h)
 
 	separator := func() {
 		fmt.Fprintf(w, "\t|")
@@ -99,7 +99,7 @@ func Frame(zone Zone, wr Region, ld LogDecriment, h float64, hzs []float64) (
 	fmt.Fprintf(w, "\t|\t\t\t\t\t\t|\t\t\t\t|\n")
 	WsZ = func(z float64) float64 {
 		if z < zo || h < z {
-			panic("not acceptable")
+			panic(fmt.Errorf("not acceptable: z(%.2e) < zo(%.2e) || h(%.2e) < z(%.2e) ", z, zo, h, z))
 		}
 		separator()
 		// Wo
@@ -223,7 +223,7 @@ func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float6
 	fmt.Fprintf(w, "\n")
 
 	// generate height sections
-	zs := splitHeigth(zo, h)
+	zs := SplitHeigth(zo, h)
 
 	// Коэффициент пространственной корреляции пульсаций давлавления
 	// ν
@@ -236,17 +236,18 @@ func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float6
 	fmt.Fprintf(w, "\tν\t%6.3f\n", ν)
 	fmt.Fprintf(w, "\n")
 
-	separator := func() {
-		fmt.Fprintf(w, "\t|")
-	}
 	fmt.Fprintf(w, "\t|\tz\tze\tKz\tζ\tξ\t|\tWm\tWp\tWsum\t|\n")
 	fmt.Fprintf(w, "\t|\tm\tm\t\t\t\t|\tPa\tPa\tPa\t|\n")
 	fmt.Fprintf(w, "\t|\t\t\t\t\t\t|\t\t\t\t|\n")
-	WsZ = func(z float64) float64 {
-		if z < zo || h < z {
-			panic("not acceptable")
+	section := func(w io.Writer, z float64) float64 {
+		if w == nil {
+			var buf bytes.Buffer
+			w = &buf
 		}
-		separator()
+		if z < zo || h < z {
+			panic(fmt.Errorf("not acceptable: z(%.2e) < zo(%.2e) || h(%.2e) < z(%.2e) ", z, zo, h, z))
+		}
+		fmt.Fprintf(w, "\t|") // separator
 		// Wo
 		Wo := float64(wr)
 		fmt.Fprintf(w, "\t%6.3f", z)
@@ -262,7 +263,7 @@ func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float6
 		// Xi
 		ξ := FactorXiHz(wr, zone, ld, true, h, hzs)
 		fmt.Fprintf(w, "\t%6.3f", ξ)
-		separator()
+		fmt.Fprintf(w, "\t|") // separator
 		// Wm
 		Wm := Wo * Kz * cx
 		fmt.Fprintf(w, "\t%6.1f", Wm)
@@ -272,14 +273,31 @@ func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float6
 		// Wsum
 		Wsum := Wm + Wp
 		fmt.Fprintf(w, "\t%6.1f", Wsum)
-		separator()
+		fmt.Fprintf(w, "\t|") // separator
 
 		fmt.Fprintf(w, "\n")
 		return Wsum
 	}
-	for _, z := range zs {
-		_ = WsZ(z)
+	WsZ = func(z float64) float64 {
+		return section(nil, z)
 	}
+	for _, z := range zs {
+		_ = section(w,z)
+	}
+ 
+ 	fmt.Fprintf(w, `
+     Ws on top    |----------->             |--------->
+                  |          /              |         |
+                  |--------->    Ws average |--------->
+                  |        /                |         |
+     Ws on zero   |------->                 |--------->
+                --------------- ground ------------------
+`)
+ 	fmt.Fprintf(w, "\n")
+ 	fmt.Fprintf(w, "|\tside\t|\twidth\t|\tCenter of Ws\t|\tWs average\t|\n")
+ 	Wa, Z := averageW(zo, h, WsZ)
+ 	fmt.Fprintf(w, "|\t%6s\t|\t%6.3f\t|\t%6.3f\t|\t%+8.1f\t|\n",
+ 		"front", d, Z, Wa)
 	w.Flush()
 	fmt.Fprintf(os.Stdout, "%s", buf.String())
 	return
@@ -353,7 +371,13 @@ func (rs RectangleSide) String() string {
 	return fmt.Sprintf("Side of rectangle: %s", name)
 }
 
-func splitHeigth(zo, h float64) (zs []float64) {
+func SplitHeigth(zo, h float64) (zs []float64) {
+	if zo < 0.000 {
+		panic("zo is negative")
+	}
+	if h < zo {
+		panic("not valid h < zo")
+	}
 	zs = append(zs, zo)
 	zmin := float64(int(zo/5)+1) * 5.0
 	for z := zmin; z < h; z += 5.0 {
@@ -370,7 +394,7 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 	WsZ [SideSize]func(z float64) float64,
 ) {
 	// generate height sections
-	zs := splitHeigth(zo, h)
+	zs := SplitHeigth(zo, h)
 
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
@@ -471,7 +495,7 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 		side := side
 		WsZ[side] = func(z float64) float64 {
 			if z < zo || h < z {
-				panic("not acceptable")
+				panic(fmt.Errorf("not acceptable: z(%.2e) < zo(%.2e) || h(%.2e) < z(%.2e) ", z, zo, h, z))
 			}
 			return section(nil, z, side)
 		}
@@ -526,72 +550,43 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 	}
 
 	fmt.Fprintf(w, `
-   Ws on top    |----------->             |--------->
-                |          /              |         |
-                |--------->    Ws average |--------->
-                |        /                |         |
-   Ws on zero   |------->                 |--------->
-              --------------- ground ------------------
+    Ws on top    |----------->             |--------->
+                 |          /              |         |
+                 |--------->    Ws average |--------->
+                 |        /                |         |
+    Ws on zero   |------->                 |--------->
+               --------------- ground ------------------
 `)
 	fmt.Fprintf(w, "\n")
-	fmt.Fprintf(w, "|\tside\t|\twidth\t|\tWs on zero\t|\tWs on top\t|\tCenter of Ws\t|\tWs average\t|\n")
-	fmt.Fprintf(w, "|\t\t|\t\t|\televation\t|\televation\t|\t\t|\t\t|\n")
-	fmt.Fprintf(w, "|\t\t|\tmeter\t|\tPa\t|\tPa\t|\tmeter\t|\tPa\t|\n")
-	fmt.Fprintf(w, "|\t\t|\t\t|\t\t|\t\t|\t\t|\t\t|\n")
+	fmt.Fprintf(w, "|\tside\t|\twidth\t|\tCenter of Ws\t|\tWs average\t|\n")
 	for _, side := range ListRectangleSides() {
-		// calculate trapezoid wind load
-		//	1. area   = (w0+w1)/2 * (h - zo)
-		//	2. center = (h - zo)/3*(w0+2*w1)/(w0+w1) + zo
-		// solving system:
-		//	1. w0+w1   = area/(h - zo)*2
-		//	2. w0+2*w1 = (center-zo)*3/(h-zo)*(w0+w1)
-		// combile 1 and 2:
-		//	1. w0+w1   = area/(h-zo)*2
-		//  3. w0+2*w1 = (center-zo)*3/(h-zo)*area/(h-zo)*2
-		// rename rigth parts:
-		//	1. w0+w1   = r1
-		//  3. w0+2*w1 = r2
-		// solving:
-		//	w0 = r1 - w1
-		//	r1 - w1 + 2*w1 = r2
-		//	w1 = r2 - r1
-		//	w0 = r1 - w1 = r1 - r2 + r1 = 2*r1 - r2
-		r1 := av[side].value / (h - zo) * 2.0
-		r2 := (av[side].center - zo) * 3.0 / (h - zo) * r1
-		w0 := 2*r1 - r2
-		w1 := r2 - r1
-
-		// calculate uniform wind load
-		// with same moment on ground
-		M := av[side].value * av[side].center
-		waverage := M / ((h - zo) * ((h-zo)/2.0 + zo))
-
-		{
-			// check
-			eps := 1e-6
-			area := (w0 + w1) / 2 * (h - zo)
-			if e := math.Abs((area - av[side].value) / area); eps < e {
-				panic(e)
-			}
-			area = waverage * (h - zo)
-			if e := math.Abs((area - av[side].value) / area); math.Abs(area) < math.Abs(av[side].value) {
-				panic(fmt.Errorf("%v %v %v", e, area, av[side].value))
-			}
-		}
-
-		// width
+		Wa, Z := averageW(zo, h, WsZ[side])
 		wd := width(side)
-		if wd == 0.0 {
-			w0 = 0
-			w1 = 0
-			av[side].center = 0
-			waverage = 0
-		}
-		fmt.Fprintf(w, "|\t%6s\t|\t%6.3f\t|\t%+8.1f\t|\t%+8.1f\t|\t%6.3f\t|\t%+8.1f\t|\n",
-			side.Name(), wd, w0, w1, av[side].center, waverage)
+		fmt.Fprintf(w, "|\t%6s\t|\t%6.3f\t|\t%6.3f\t|\t%+8.1f\t|\n",
+			side.Name(), wd, Z, Wa)
 	}
 
 	w.Flush()
 	fmt.Fprintf(os.Stdout, "%s", buf.String())
 	return
+}
+
+func averageW(z0, z1 float64, w func(z float64) float64) (Wa, Z float64) {
+	// center mass of shape:
+	// Z := sum(mi*zi)/sum(mi)
+	zh := SplitHeigth(z0, z1)
+	var up, down float64
+	for i := range zh {
+		if i == 0 {
+			continue
+		}
+		z0, z1 := zh[i-1], zh[i]
+		w0, w1 := w(z0), w(z1)
+		dz := z1 - z0
+		mi := (w0 + w1) / 2.0 * dz                                  // area of trapezoid
+		zi := (w0*(z0+1.0/3.0*dz) + w1*(z0+2.0/3.0*dz)) / (w0 + w1) // center of trapezoid
+		up += mi * zi
+		down += mi
+	}
+	return down / (z1 - z0), up / down
 }
