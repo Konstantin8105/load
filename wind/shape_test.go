@@ -164,7 +164,7 @@ func ExampleRectangle() {
 }
 
 func ExampleCylinder() {
-	Wsum := Cylinder(ZoneA, RegionII, LogDecriment15, 0.200, 4.710, 10.100, 2.800,
+	Wsum := Cylinder(os.Stdout, ZoneA, RegionII, LogDecriment15, 0.200, 4.710, 10.100, 2.800,
 		[]float64{3.091, 3.414, 3.719})
 	for _, z := range []float64{2.8, 5, 10} {
 		fmt.Fprintf(os.Stdout, "Wsum[z = %6.3f m] = %6.1f Pa\n", z, Wsum(z))

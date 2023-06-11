@@ -149,11 +149,15 @@ func Frame(out io.Writer, zone Zone, wr Region, ld LogDecriment, h float64, hzs 
 
 // Cylinder return Wsum dependency of height.
 // Acceptable for vertical and horizontal duct.
-func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float64, hzs []float64) (
+func Cylinder(out io.Writer, zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float64, hzs []float64) (
 	WsZ func(z float64) float64,
 ) {
-
 	var buf bytes.Buffer
+	defer func() {
+		if out != nil {
+			fmt.Fprintf(out, "%s", buf.String())
+		}
+	}()
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
 	fmt.Fprintf(w, `Sketch:
 
@@ -303,7 +307,6 @@ func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float6
 	fmt.Fprintf(w, "|\t%6s\t|\t%6.3f\t|\t%6.3f\t|\t%+8.1f\t|\n",
 		"front", d, Z, Wa)
 	w.Flush()
-	fmt.Fprintf(os.Stdout, "%s", buf.String())
 	return
 }
 
