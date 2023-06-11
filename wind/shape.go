@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"os"
 	"text/tabwriter"
 )
 
@@ -397,13 +396,18 @@ func SplitHeigth(zo, h float64) (zs []float64) {
 }
 
 // Rectangle return Wsum dependency of height, see part B.1.2
-func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float64, hzs []float64) (
+func Rectangle(out io.Writer, zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float64, hzs []float64) (
 	WsZ [SideSize]func(z float64) float64,
 ) {
 	// generate height sections
 	zs := SplitHeigth(zo, h)
 
 	var buf bytes.Buffer
+	defer func() {
+		if out != nil {
+			fmt.Fprintf(out, "%s", buf.String())
+		}
+	}()
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
 	fmt.Fprintf(w, `Sketch:
 
@@ -574,7 +578,6 @@ func Rectangle(zone Zone, wr Region, ld LogDecriment, b, d, h float64, zo float6
 	}
 
 	w.Flush()
-	fmt.Fprintf(os.Stdout, "%s", buf.String())
 	return
 }
 

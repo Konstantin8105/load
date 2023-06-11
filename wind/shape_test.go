@@ -57,7 +57,7 @@ func ExampleFrame() {
 }
 
 func ExampleRectangle() {
-	Wsum := Rectangle(ZoneA, RegionII, LogDecriment15, 5.38, 7.32, 18.965, 0.000, []float64{1.393})
+	Wsum := Rectangle(os.Stdout, ZoneA, RegionII, LogDecriment15, 5.38, 7.32, 18.965, 0.000, []float64{1.393})
 	for _, z := range []float64{10, 15} {
 		fmt.Fprintf(os.Stdout, "z = %6.3f m\n", z)
 		for _, side := range ListRectangleSides() {
