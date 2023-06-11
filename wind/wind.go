@@ -362,7 +362,7 @@ func factorXi(ld LogDecriment, Tg float64) (ξ float64) {
 		panic("not implemented")
 	}
 
-	ξ, err := graph.Find(Tg, data...)
+	ξ, err := graph.Find(Tg, true, graph.NoCheckSorted, data...)
 	if err != nil {
 		panic(err)
 	}
