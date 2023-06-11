@@ -87,6 +87,14 @@ const (
 	ZoneC Zone = 'C'
 )
 
+func ListZone() []Zone {
+	return []Zone{
+		ZoneA,
+		ZoneB,
+		ZoneC,
+	}
+}
+
 // String implementation of Stringer interface
 func (z Zone) String() string {
 	return "Wind zone: " + string(z)
@@ -123,6 +131,14 @@ const (
 	// для зданий со стальным каркасом при наличии ограждающих конструкций
 	LogDecriment30 LogDecriment = 0.30
 )
+
+func ListLogDecriment() []LogDecriment {
+	return []LogDecriment{
+		LogDecriment15,
+		LogDecriment22,
+		LogDecriment30,
+	}
+}
 
 // Name of log decriment
 func (ld LogDecriment) Name() string {
