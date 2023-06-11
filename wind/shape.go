@@ -32,11 +32,16 @@ func Sphere(zone Zone, wr Region, zg, d, Δ float64) (cx, cz, Re, ν float64) {
 }
 
 // Frame return Wsum dependency of height
-func Frame(zone Zone, wr Region, ld LogDecriment, h float64, hzs []float64) (
+func Frame(out io.Writer, zone Zone, wr Region, ld LogDecriment, h float64, hzs []float64) (
 	WsZ func(z float64) float64,
 ) {
 
 	var buf bytes.Buffer
+	defer func() {
+		if out != nil {
+			fmt.Fprintf(out, "%s", buf.String())
+		}
+	}()
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.TabIndent)
 	fmt.Fprintf(w, `Sketch:
 
@@ -139,7 +144,6 @@ func Frame(zone Zone, wr Region, ld LogDecriment, h float64, hzs []float64) (
 		_ = WsZ(z)
 	}
 	w.Flush()
-	fmt.Fprintf(os.Stdout, "%s", buf.String())
 	return
 }
 
@@ -282,10 +286,10 @@ func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float6
 		return section(nil, z)
 	}
 	for _, z := range zs {
-		_ = section(w,z)
+		_ = section(w, z)
 	}
- 
- 	fmt.Fprintf(w, `
+
+	fmt.Fprintf(w, `
      Ws on top    |----------->             |--------->
                   |          /              |         |
                   |--------->    Ws average |--------->
@@ -293,11 +297,11 @@ func Cylinder(zone Zone, wr Region, ld LogDecriment, Δ, d, h float64, zo float6
      Ws on zero   |------->                 |--------->
                 --------------- ground ------------------
 `)
- 	fmt.Fprintf(w, "\n")
- 	fmt.Fprintf(w, "|\tside\t|\twidth\t|\tCenter of Ws\t|\tWs average\t|\n")
- 	Wa, Z := averageW(zo, h, WsZ)
- 	fmt.Fprintf(w, "|\t%6s\t|\t%6.3f\t|\t%6.3f\t|\t%+8.1f\t|\n",
- 		"front", d, Z, Wa)
+	fmt.Fprintf(w, "\n")
+	fmt.Fprintf(w, "|\tside\t|\twidth\t|\tCenter of Ws\t|\tWs average\t|\n")
+	Wa, Z := averageW(zo, h, WsZ)
+	fmt.Fprintf(w, "|\t%6s\t|\t%6.3f\t|\t%6.3f\t|\t%+8.1f\t|\n",
+		"front", d, Z, Wa)
 	w.Flush()
 	fmt.Fprintf(os.Stdout, "%s", buf.String())
 	return

@@ -7,7 +7,7 @@ import (
 )
 
 func ExampleFrame() {
-	Wsum := Frame(ZoneA, RegionII, LogDecriment15, 18.965, []float64{1.393})
+	Wsum := Frame(os.Stdout, ZoneA, RegionII, LogDecriment15, 18.965, []float64{1.393})
 	for _, z := range []float64{2.8, 5, 10} {
 		fmt.Fprintf(os.Stdout, "Wsum[z = %6.3f m] = %6.1f Pa\n", z, Wsum(z))
 	}
