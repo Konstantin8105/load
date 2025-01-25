@@ -1,0 +1,42 @@
+Sketch:
+
+          *-------
+          *     |
+  Wind    *     |
+ ----->   *     |
+          *     |
+          *     |
+          *     |
+          *     h
+          *     |
+          *     |
+          *     |
+          *     |
+   ---- ground ----
+
+Wind zone: A
+Wind region:  II with value = 300.0 Pa
+Wind log decrement: δ = 0.15
+Natural frequency : [1.393]
+
+Dimensions:
+h 18.965 m
+
+Cx  =  1.400
+
+The spatial correlation coefficient of pressure pulsations:
+ρ  0.000
+χ 18.965
+ν  0.884
+
+| z      ze     Kz     ζ      ξ      | Wm     Wp     Wsum   |
+| m      m                           | Pa     Pa     Pa     |
+|                                    |                      |
+|  0.000  0.000  0.750  0.850  1.526 |  315.0  361.2  676.2 |
+|  5.000  5.000  0.750  0.850  1.526 |  315.0  361.2  676.2 |
+| 10.000 10.000  1.000  0.760  1.526 |  420.0  430.7  850.7 |
+| 15.000 15.000  1.129  0.715  1.526 |  474.3  457.7  932.0 |
+| 18.965 18.965  1.212  0.690  1.526 |  508.9  474.1  983.0 |
+Wsum[z =  2.800 m] =  676.2 Pa
+Wsum[z =  5.000 m] =  676.2 Pa
+Wsum[z = 10.000 m] =  850.7 Pa

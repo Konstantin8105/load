@@ -1,239 +1,46 @@
 package wind
 
 import (
+	"bytes"
 	"fmt"
 	"math"
-	"os"
+	"testing"
+
+	"github.com/Konstantin8105/compare"
 )
 
-func ExampleFrame() {
-	Wsum := Frame(os.Stdout, ZoneA, RegionII, LogDecriment15, 18.965, []float64{1.393})
-	for _, z := range []float64{2.8, 5, 10} {
-		fmt.Fprintf(os.Stdout, "Wsum[z = %6.3f m] = %6.1f Pa\n", z, Wsum(z))
-	}
-	// Output:
-	// Sketch:
-	//
-	//           *-------
-	//           *     |
-	//   Wind    *     |
-	//  ----->   *     |
-	//           *     |
-	//           *     |
-	//           *     |
-	//           *     h
-	//           *     |
-	//           *     |
-	//           *     |
-	//           *     |
-	//    ---- ground ----
-	//
-	// Wind zone: A
-	// Wind region:  II with value = 300.0 Pa
-	// Wind log decrement: δ = 0.15
-	// Natural frequency : [1.393]
-	//
-	// Dimensions:
-	// h 18.965 m
-	//
-	// Cx  =  1.400
-	//
-	// The spatial correlation coefficient of pressure pulsations:
-	// ρ  0.000
-	// χ 18.965
-	// ν  0.884
-	//
-	// | z      ze     Kz     ζ      ξ      | Wm     Wp     Wsum   |
-	// | m      m                           | Pa     Pa     Pa     |
-	// |                                    |                      |
-	// |  0.000  0.000  0.750  0.850  1.526 |  315.0  361.2  676.2 |
-	// |  5.000  5.000  0.750  0.850  1.526 |  315.0  361.2  676.2 |
-	// | 10.000 10.000  1.000  0.760  1.526 |  420.0  430.7  850.7 |
-	// | 15.000 15.000  1.129  0.715  1.526 |  474.3  457.7  932.0 |
-	// | 18.965 18.965  1.212  0.690  1.526 |  508.9  474.1  983.0 |
-	// Wsum[z =  2.800 m] =  676.2 Pa
-	// Wsum[z =  5.000 m] =  676.2 Pa
-	// Wsum[z = 10.000 m] =  850.7 Pa
-}
-
-func ExampleRectangle() {
-	Wsum := Rectangle(os.Stdout, ZoneA, RegionII, LogDecriment15, 5.38, 7.32, 18.965, 0.000, []float64{1.393})
-	for _, z := range []float64{10, 15} {
-		fmt.Fprintf(os.Stdout, "z = %6.3f m\n", z)
-		for _, side := range ListRectangleSides() {
-			fmt.Fprintf(os.Stdout, "Wsum[%s] = %6.1f Pa\n", side,
-				Wsum[side](z))
+func Test(t *testing.T) {
+	t.Run("frame", func(t *testing.T) {
+		var buf bytes.Buffer
+		Wsum := Frame(&buf, ZoneA, RegionII, LogDecriment15, 18.965, []float64{1.393})
+		for _, z := range []float64{2.8, 5, 10} {
+			fmt.Fprintf(&buf, "Wsum[z = %6.3f m] = %6.1f Pa\n", z, Wsum(z))
 		}
-		fmt.Fprintf(os.Stdout, "Summary D and E:\n")
-		fmt.Fprintf(os.Stdout, "Wsum[z = %6.3f m] = %6.1f Pa\n", z,
-			math.Abs(Wsum[SideD](z))+math.Abs(Wsum[SideE](z)))
-		fmt.Fprintf(os.Stdout, "\n")
-	}
-
-	// Output:
-	// Sketch:
-	//
-	//           |<------- d --------->|
-	//           |                     |
-	//           ***********************------
-	//           *                     *    |
-	//   Wind    *                     *    |
-	//  ----->   *                     *    |
-	//         D *                     * E  b
-	//           *                     *    |
-	//           *                     *    |
-	//           *                     *    |
-	//           ***********************------
-	//           |  A  |    B    |  C  |
-	//
-	// Wind zone: A
-	// Wind region:  II with value = 300.0 Pa
-	// Wind log decrement: δ = 0.15
-	// Natural frequency : [1.393]
-	//
-	// Dimensions:
-	// b   5.380 m
-	// d   7.320 m
-	// zo  0.000 m
-	// h  18.965 m
-	//
-	// | side z      ze     Kz     ζ      ξ      | cx   ρ      χ      ν      Wm     Wp     Wsum   |
-	// |                                         |                           Pa     Pa     Pa     |
-	// |                                         |                                                |
-	// | A     0.000  7.320  0.866  0.808  1.526 | -1.0  2.928 18.965  0.860 -259.8 -275.7 -535.5 |
-	// | A     5.000  7.320  0.866  0.808  1.526 | -1.0  2.928 18.965  0.860 -259.8 -275.7 -535.5 |
-	// | A    10.000 10.000  1.000  0.760  1.526 | -1.0  2.928 18.965  0.860 -300.0 -299.4 -599.4 |
-	// | A    15.000 18.965  1.212  0.690  1.526 | -1.0  2.928 18.965  0.860 -363.5 -329.5 -693.0 |
-	// | A    18.965 18.965  1.212  0.690  1.526 | -1.0  2.928 18.965  0.860 -363.5 -329.5 -693.0 |
-	// |                                         |                                                |
-	// | B     0.000  7.320  0.866  0.808  1.526 | -0.8  2.928 18.965  0.860 -207.8 -220.6 -428.4 |
-	// | B     5.000  7.320  0.866  0.808  1.526 | -0.8  2.928 18.965  0.860 -207.8 -220.6 -428.4 |
-	// | B    10.000 10.000  1.000  0.760  1.526 | -0.8  2.928 18.965  0.860 -240.0 -239.5 -479.5 |
-	// | B    15.000 18.965  1.212  0.690  1.526 | -0.8  2.928 18.965  0.860 -290.8 -263.6 -554.4 |
-	// | B    18.965 18.965  1.212  0.690  1.526 | -0.8  2.928 18.965  0.860 -290.8 -263.6 -554.4 |
-	// |                                         |                                                |
-	// | C     0.000  7.320  0.866  0.808  1.526 | -0.5  2.928 18.965  0.860 -129.9 -137.9 -267.8 |
-	// | C     5.000  7.320  0.866  0.808  1.526 | -0.5  2.928 18.965  0.860 -129.9 -137.9 -267.8 |
-	// | C    10.000 10.000  1.000  0.760  1.526 | -0.5  2.928 18.965  0.860 -150.0 -149.7 -299.7 |
-	// | C    15.000 18.965  1.212  0.690  1.526 | -0.5  2.928 18.965  0.860 -181.8 -164.8 -346.5 |
-	// | C    18.965 18.965  1.212  0.690  1.526 | -0.5  2.928 18.965  0.860 -181.8 -164.8 -346.5 |
-	// |                                         |                                                |
-	// | D     0.000  5.380  0.769  0.843  1.526 |  0.8  5.380 18.965  0.841  184.6  199.7  384.2 |
-	// | D     5.000  5.380  0.769  0.843  1.526 |  0.8  5.380 18.965  0.841  184.6  199.7  384.2 |
-	// | D    10.000 10.000  1.000  0.760  1.526 |  0.8  5.380 18.965  0.841  240.0  234.0  474.0 |
-	// | D    15.000 18.965  1.212  0.690  1.526 |  0.8  5.380 18.965  0.841  290.8  257.6  548.4 |
-	// | D    18.965 18.965  1.212  0.690  1.526 |  0.8  5.380 18.965  0.841  290.8  257.6  548.4 |
-	// |                                         |                                                |
-	// | E     0.000  5.380  0.769  0.843  1.526 | -0.5  5.380 18.965  0.841 -115.4 -124.8 -240.1 |
-	// | E     5.000  5.380  0.769  0.843  1.526 | -0.5  5.380 18.965  0.841 -115.4 -124.8 -240.1 |
-	// | E    10.000 10.000  1.000  0.760  1.526 | -0.5  5.380 18.965  0.841 -150.0 -146.3 -296.3 |
-	// | E    15.000 18.965  1.212  0.690  1.526 | -0.5  5.380 18.965  0.841 -181.8 -161.0 -342.8 |
-	// | E    18.965 18.965  1.212  0.690  1.526 | -0.5  5.380 18.965  0.841 -181.8 -161.0 -342.8 |
-	//
-	//
-	//     Ws on top    |----------->             |--------->
-	//                  |          /              |         |
-	//                  |--------->    Ws average |--------->
-	//                  |        /                |         |
-	//     Ws on zero   |------->                 |--------->
-	//                --------------- ground ------------------
-	//
-	// | side   | width  | Center of Ws | Ws average |
-	// |      A |  1.076 | 10.036       |   -606.1   |
-	// |      B |  4.304 | 10.036       |   -484.8   |
-	// |      C |  1.940 | 10.036       |   -303.0   |
-	// |      D |  5.380 | 10.244       |   +463.9   |
-	// |      E |  5.380 | 10.244       |   -289.9   |
-	// z = 10.000 m
-	// Wsum[Side of rectangle: A] = -599.4 Pa
-	// Wsum[Side of rectangle: B] = -479.5 Pa
-	// Wsum[Side of rectangle: C] = -299.7 Pa
-	// Wsum[Side of rectangle: D] =  474.0 Pa
-	// Wsum[Side of rectangle: E] = -296.3 Pa
-	// Summary D and E:
-	// Wsum[z = 10.000 m] =  770.3 Pa
-	//
-	// z = 15.000 m
-	// Wsum[Side of rectangle: A] = -693.0 Pa
-	// Wsum[Side of rectangle: B] = -554.4 Pa
-	// Wsum[Side of rectangle: C] = -346.5 Pa
-	// Wsum[Side of rectangle: D] =  548.4 Pa
-	// Wsum[Side of rectangle: E] = -342.8 Pa
-	// Summary D and E:
-	// Wsum[z = 15.000 m] =  891.2 Pa
-}
-
-func ExampleCylinder() {
-	Wsum := Cylinder(os.Stdout, ZoneA, RegionII, LogDecriment15, 0.200, 4.710, 10.100, 2.800,
-		[]float64{3.091, 3.414, 3.719})
-	for _, z := range []float64{2.8, 5, 10} {
-		fmt.Fprintf(os.Stdout, "Wsum[z = %6.3f m] = %6.1f Pa\n", z, Wsum(z))
-	}
-	// Output:
-	// Sketch:
-	//
-	//           |<--- d ----->|
-	//           |             |
-	//           ***************-------
-	//           *             *     |
-	//   Wind    *             *     |
-	//  ----->   *             *     |
-	//           *             *     |
-	//           *             *     |
-	//           *             *     |
-	//           *             *     h
-	//           ***************---  |
-	//                           |   |
-	//                           zo  |
-	//                           |   |
-	//    ---------- ground -------------
-	//
-	// Wind zone: A
-	// Wind region:  II with value = 300.0 Pa
-	// Wind log decrement: δ = 0.15
-	// Natural frequency : [3.091 3.414 3.719]
-	//
-	// Dimensions:
-	// b   4.710 m
-	// d   4.710 m
-	// zo  2.800 m
-	// h  10.100 m
-	//
-	// Re = 86.160*10^5 for ze=0.8*h =  8.640
-	//
-	// Cx∞ =  1.100
-	//
-	// Elongation:
-	// λ   1.550
-	// λe  3.100
-	// ϕ   1.000
-	// Kλ  0.649
-	//
-	// Cx  =  0.714
-	//
-	// The spatial correlation coefficient of pressure pulsations:
-	// ρ  4.710
-	// χ 10.100
-	// ν  0.873
-	//
-	// | z      ze     Kz     ζ      ξ      | Wm     Wp     Wsum   |
-	// | m      m                           | Pa     Pa     Pa     |
-	// |                                    |                      |
-	// |  2.800  2.800  0.750  0.850  1.000 |  160.7  119.2  279.8 |
-	// |  5.000  5.000  0.750  0.850  1.000 |  160.7  119.2  279.8 |
-	// | 10.000 10.000  1.000  0.760  1.000 |  214.2  142.1  356.3 |
-	// | 10.100 10.100  1.003  0.759  1.000 |  214.9  142.3  357.1 |
-	//
-	//      Ws on top    |----------->             |--------->
-	//                   |          /              |         |
-	//                   |--------->    Ws average |--------->
-	//                   |        /                |         |
-	//      Ws on zero   |------->                 |--------->
-	//                 --------------- ground ------------------
-	//
-	// | side   | width  | Center of Ws | Ws average |
-	// |  front |  4.710 |  6.623       |   +307.1   |
-	// Wsum[z =  2.800 m] =  279.8 Pa
-	// Wsum[z =  5.000 m] =  279.8 Pa
-	// Wsum[z = 10.000 m] =  356.3 Pa
+		compare.Test(t, "test.frame", buf.Bytes())
+	})
+	t.Run("rectangle", func(t *testing.T) {
+		var buf bytes.Buffer
+		Wsum := Rectangle(&buf, ZoneA, RegionII, LogDecriment15, 5.38, 7.32, 18.965, 0.000, []float64{1.393})
+		for _, z := range []float64{10, 15} {
+			fmt.Fprintf(&buf, "z = %6.3f m\n", z)
+			for _, side := range ListRectangleSides() {
+				fmt.Fprintf(&buf, "Wsum[%s] = %6.1f Pa\n", side,
+					Wsum[side](z))
+			}
+			fmt.Fprintf(&buf, "Summary D and E:\n")
+			fmt.Fprintf(&buf, "Wsum[z = %6.3f m] = %6.1f Pa\n", z,
+				math.Abs(Wsum[SideD](z))+math.Abs(Wsum[SideE](z)))
+			fmt.Fprintf(&buf, "\n")
+		}
+		compare.Test(t, "test.rectangle", buf.Bytes())
+	})
+	t.Run("cylinder", func(t *testing.T) {
+		var buf bytes.Buffer
+		Wsum := Cylinder(&buf, ZoneA, RegionII, LogDecriment15, 0.200, 4.710, 10.100, 2.800,
+			[]float64{3.091, 3.414, 3.719})
+		for _, z := range []float64{2.8, 5, 10} {
+			fmt.Fprintf(&buf, "Wsum[z = %6.3f m] = %6.1f Pa\n", z, Wsum(z))
+		}
+		compare.Test(t, "test.cylinder", buf.Bytes())
+	})
 }
