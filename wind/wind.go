@@ -496,7 +496,7 @@ func GraphB23(λe, ϕ float64) (Kλ float64) {
 		λe = 1.0
 	}
 	if 200 < λe {
-		λe = 200
+		return 1.0
 	}
 	return interpolTable(math.Log10(λe), ϕ, 4, 5, []float64{
 		-0.1, 0.00, 1.00, 2.00, 2.30103, //1.00, 10.0, 100., 200.,
