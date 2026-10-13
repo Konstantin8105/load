@@ -6,10 +6,13 @@
 package wind
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"math"
 	"sort"
 
+	"github.com/Konstantin8105/efmt"
 	"github.com/Konstantin8105/graph"
 	"github.com/Konstantin8105/pow"
 )
@@ -256,17 +259,32 @@ func DimlessPeriodLimit(ld LogDecriment) float64 {
 }
 
 // NaturalFrequencyLimit by formula 11.9a
-func NaturalFrequencyLimit(zone Zone, wr Region, ld LogDecriment, z float64) (Flim float64) {
+func NaturalFrequencyLimit(out io.Writer, zone Zone, wr Region, ld LogDecriment, z float64) (Flim float64) {
+	var buf bytes.Buffer
+	defer func() {
+		if out != nil {
+			fmt.Fprintf(out, "%s", buf.String())
+		}
+	}()
 
+	fmt.Fprintf(&buf, "Расчет предельного значения частоты собственных колебаний\n")
 	wo := float64(wr)
+	fmt.Fprintf(&buf, "Значение wo = %s\n", efmt.Sprint(wo))
+	fmt.Fprintf(&buf, "Логарифмический декримент = %s\n", efmt.Sprint(float64(ld)))
 	Tglim := DimlessPeriodLimit(ld)
+	fmt.Fprintf(&buf, "Безразмерный период = %s\n", efmt.Sprint(Tglim))
 
 	// Для конструктивных элементов zэк — высота z, на которой они расположены;
 	// для зданий и сооружений zэк = 0,8h, где h — высота сооружений;
 	zek := z
+	fmt.Fprintf(&buf, "Эквивалентная высота = %s\n", efmt.Sprint(zek))
 	k := FactorKz(zone, zek)
+	fmt.Fprintf(&buf, "Коэффициент k = %s\n", efmt.Sprint(k))
 
-	return math.Sqrt(wo*k*γf) / (940.0 * Tglim)
+	Flim = math.Sqrt(wo*k*γf) / (940.0 * Tglim)
+	fmt.Fprintf(&buf, "Предельная значение частоты собственных колебаний Flim= %s\n", efmt.Sprint(Flim))
+	fmt.Fprintf(&buf, "\n")
+	return
 }
 
 // FactorXiHz - коэффициент динамичности by pic 11.1 c учетом
@@ -276,14 +294,20 @@ func NaturalFrequencyLimit(zone Zone, wr Region, ld LogDecriment, z float64) (Fl
 //	isBuilding = false - для конструктивных элементов zэк — высота z, на
 //		которой они расположены
 //	hzs - список частот собственных колебаний
-func FactorXiHz(wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float64, hzs []float64) (ξ float64) {
+func FactorXiHz(out io.Writer, wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float64, hzs []float64) (ξ float64) {
+	var buf bytes.Buffer
+	defer func() {
+		if out != nil {
+			fmt.Fprintf(out, "%s", buf.String())
+		}
+	}()
 	defer func() {
 		// round
 		ξ *= 1000.0
 		ξi := int64(ξ)
 		ξ = float64(ξi) / 1000.0
 	}()
-	flim := NaturalFrequencyLimit(zone, wr, ld, z)
+	flim := NaturalFrequencyLimit(&buf, zone, wr, ld, z)
 	// filter of natural frequency
 	{
 		s := make([]float64, len(hzs))
@@ -308,12 +332,19 @@ func FactorXiHz(wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float6
 	ξ = 1.0 // by default if flim < f
 	if 0 < len(hzs) {
 		ξ = 0.0 // reset value
-		for _, hz := range hzs {
+		fmt.Fprintf(&buf, "Расчет коэффициента динамичности\n")
+		for ih, hz := range hzs {
+			fmt.Fprintf(&buf, "Частота собственных колебаний №%d: %s\n", ih+1, efmt.Sprint(hz))
 			Tgi := math.Sqrt(Wo*Kz*γf) / (940.0 * hz) // see formula 11.8a
+			fmt.Fprintf(&buf, "Безразмерный период %s\n", efmt.Sprint(Tgi))
 			ξi := FactorXi(ld, Tgi)
+			fmt.Fprintf(&buf, "Коэффициент динамичности %s\n", efmt.Sprint(ξi))
 			ξ += pow.E2(ξi)
+			fmt.Fprintf(&buf, "\n")
 		}
 		ξ = math.Sqrt(ξ)
+		fmt.Fprintf(&buf, "Коэффициент динамичности %s\n", efmt.Sprint(ξ))
+		fmt.Fprintf(&buf, "\n")
 	}
 	if ξ < 0.8 {
 		panic(fmt.Errorf("%v %v %v", hzs, flim, ξ))

@@ -91,6 +91,8 @@ func Frame(out io.Writer, zone Zone, wr Region, ld LogDecriment, h float64, hzs 
 	fmt.Fprintf(w, "\tν\t%6.3f\n", ν)
 	fmt.Fprintf(w, "\n")
 
+	_ = FactorXiHz(&buf, wr, zone, ld, true, h, hzs)
+
 	// generate height sections
 	zo := 0.0
 	zs := SplitHeigth(zo, h)
@@ -122,7 +124,7 @@ func Frame(out io.Writer, zone Zone, wr Region, ld LogDecriment, h float64, hzs 
 		ζ := FactorZeta(zone, ze)
 		fmt.Fprintf(w, "\t%6.3f", ζ)
 		// Xi
-		ξ := FactorXiHz(wr, zone, ld, true, h, hzs)
+		ξ := FactorXiHz(nil, wr, zone, ld, true, h, hzs)
 		fmt.Fprintf(w, "\t%6.3f", ξ)
 		separator()
 		// Wm
@@ -209,6 +211,8 @@ func Cylinder(out io.Writer, zone Zone, wr Region, ld LogDecriment, Δ, d, h flo
 	fmt.Fprintf(w, "Cx∞ = %6.3f\n", CxInfinite)
 	fmt.Fprintf(w, "\n")
 
+	_ = FactorXiHz(&buf, wr, zone, ld, true, h, hzs)
+
 	// Учет относительного удлинения
 	Kλ := func() float64 {
 		λ := (h - zo) / b
@@ -268,7 +272,7 @@ func Cylinder(out io.Writer, zone Zone, wr Region, ld LogDecriment, Δ, d, h flo
 		ζ := FactorZeta(zone, ze)
 		fmt.Fprintf(w, "\t%6.3f", ζ)
 		// Xi
-		ξ := FactorXiHz(wr, zone, ld, true, h, hzs)
+		ξ := FactorXiHz(nil, wr, zone, ld, true, h, hzs)
 		fmt.Fprintf(w, "\t%6.3f", ξ)
 		fmt.Fprintf(w, "\t|") // separator
 		// Wm
@@ -438,6 +442,8 @@ func Rectangle(out io.Writer, zone Zone, wr Region, ld LogDecriment, b, d, h flo
 	fmt.Fprintf(w, "\th\t%6.3f m\n", h)
 	fmt.Fprintf(w, "\n")
 
+	_ = FactorXiHz(&buf, wr, zone, ld, true, h, hzs)
+
 	section := func(w io.Writer, z float64, side RectangleSide) (wsum float64) {
 		if w == nil {
 			var buf bytes.Buffer
@@ -471,7 +477,7 @@ func Rectangle(out io.Writer, zone Zone, wr Region, ld LogDecriment, b, d, h flo
 		ζ := FactorZeta(zone, ze)
 		fmt.Fprintf(w, "\t%6.3f", ζ)
 		// Xi
-		ξ := FactorXiHz(wr, zone, ld, true, h, hzs)
+		ξ := FactorXiHz(nil, wr, zone, ld, true, h, hzs)
 		fmt.Fprintf(w, "\t%6.3f", ξ)
 		// separator
 		separator()

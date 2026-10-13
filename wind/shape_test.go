@@ -34,6 +34,11 @@ func Test(t *testing.T) {
 		}
 		compare.Test(t, "test.rectangle", buf.Bytes())
 	})
+	t.Run("rectangle2", func(t *testing.T) {
+		var buf bytes.Buffer
+		_ = Rectangle(&buf, ZoneA, RegionV, LogDecriment15, 20, 5.7, 12.100, 2.8, []float64{0.31415926, 0.56789, 4.5})
+		compare.Test(t, "test.rectangle2", buf.Bytes())
+	})
 	t.Run("cylinder", func(t *testing.T) {
 		var buf bytes.Buffer
 		Wsum := Cylinder(&buf, ZoneA, RegionII, LogDecriment15, 0.200, 4.710, 10.100, 2.800,
