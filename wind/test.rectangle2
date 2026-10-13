@@ -85,7 +85,7 @@ Side: A
 003 |         10.0 |      -1907.8 |
 004 |         12.1 |      -1907.8 |
 Summary            :     -16016.5
-Average value of W :      -1722.2
+Average value of W :      -1722.2 (Equal value by height)
 
 
 Side: B
@@ -103,7 +103,7 @@ Side: B
 003 |         10.0 |      -1526.2 |
 004 |         12.1 |      -1526.2 |
 Summary            :     -12813.2
-Average value of W :      -1377.8
+Average value of W :      -1377.8 (Equal value by height)
 
 
 Side: C
@@ -121,7 +121,7 @@ Side: C
 003 |         10.0 |       -953.9 |
 004 |         12.1 |       -953.9 |
 Summary            :      -8008.2
-Average value of W :       -861.1
+Average value of W :       -861.1 (Equal value by height)
 
 
 Side: D
@@ -139,7 +139,7 @@ Side: D
 003 |         10.0 |       1395.3 |
 004 |         12.1 |       1395.3 |
 Summary            :      12976.4
-Average value of W :       1395.3
+Average value of W :       1395.3 (Equal value by height)
 
 
 Side: E
@@ -157,6 +157,6 @@ Side: E
 003 |         10.0 |       -872.1 |
 004 |         12.1 |       -872.1 |
 Summary            :      -8110.2
-Average value of W :       -872.1
+Average value of W :       -872.1 (Equal value by height)
 
 

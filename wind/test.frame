@@ -67,7 +67,7 @@ The spatial correlation coefficient of pressure pulsations:
 004 |         15.0 |        932.0 |
 005 |         19.0 |        983.0 |
 Summary            :      15451.6
-Average value of W :        814.7
+Average value of W :        814.7 (Equal value by height)
 
 Wsum[z =  2.800 m] =  676.2 Pa
 Wsum[z =  5.000 m] =  676.2 Pa

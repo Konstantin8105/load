@@ -604,7 +604,7 @@ func averageW(out io.Writer, z0, z1 float64, w func(z float64) float64) (wa floa
 	}
 	wa = summ / (zh[len(zh)-1] - zh[0])
 	fmt.Fprintf(out, "Summary            : %12.1f\n", summ)
-	fmt.Fprintf(out, "Average value of W : %12.1f\n", wa)
+	fmt.Fprintf(out, "Average value of W : %12.1f\t(Equal value by height)\n", wa)
 	fmt.Fprintf(out, "\n")
 	return
 
