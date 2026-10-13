@@ -152,19 +152,8 @@ func Frame(out io.Writer, zone Zone, wr Region, ld LogDecriment, h float64, hzs 
 		_ = section(w, z)
 	}
 
-	fmt.Fprintf(w, `
-     Ws on top    |----------->             |--------->
-                  |          /              |         |
-                  |--------->    Ws average |--------->
-                  |        /                |         |
-     Ws on zero   |------->                 |--------->
-                --------------- ground ------------------
-`)
-	fmt.Fprintf(w, "\n")
-	fmt.Fprintf(w, "|\tside\t|\tCenter of Ws\t|\tWs average\t|\n")
-	Wa, Z := averageW(zo, h, WsZ)
-	fmt.Fprintf(w, "|\t%6s\t|\t%6.3f\t|\t%+8.1f\t|\n",
-		"front", Z, Wa)
+	_ = averageW(w, zo, h, WsZ)
+
 	w.Flush()
 	return
 }
@@ -317,19 +306,8 @@ func Cylinder(out io.Writer, zone Zone, wr Region, ld LogDecriment, Δ, d, h flo
 		_ = section(w, z)
 	}
 
-	fmt.Fprintf(w, `
-     Ws on top    |----------->             |--------->
-                  |          /              |         |
-                  |--------->    Ws average |--------->
-                  |        /                |         |
-     Ws on zero   |------->                 |--------->
-                --------------- ground ------------------
-`)
-	fmt.Fprintf(w, "\n")
-	fmt.Fprintf(w, "|\tside\t|\twidth\t|\tCenter of Ws\t|\tWs average\t|\n")
-	Wa, Z := averageW(zo, h, WsZ)
-	fmt.Fprintf(w, "|\t%6s\t|\t%6.3f\t|\t%6.3f\t|\t%+8.1f\t|\n",
-		"front", d, Z, Wa)
+	_ = averageW(w, zo, h, WsZ)
+
 	w.Flush()
 	return
 }
@@ -586,44 +564,66 @@ func Rectangle(out io.Writer, zone Zone, wr Region, ld LogDecriment, b, d, h flo
 		}
 		return width
 	}
+	_ = width
 
-	fmt.Fprintf(w, `
-    Ws on top    |----------->             |--------->
-                 |          /              |         |
-                 |--------->    Ws average |--------->
-                 |        /                |         |
-    Ws on zero   |------->                 |--------->
-               --------------- ground ------------------
-`)
-	fmt.Fprintf(w, "\n")
-	fmt.Fprintf(w, "|\tside\t|\twidth\t|\tCenter of Ws\t|\tWs average\t|\n")
 	for _, side := range ListRectangleSides() {
-		Wa, Z := averageW(zo, h, WsZ[side])
-		wd := width(side)
-		fmt.Fprintf(w, "|\t%6s\t|\t%6.3f\t|\t%6.3f\t|\t%+8.1f\t|\n",
-			side.Name(), wd, Z, Wa)
+		fmt.Fprintf(w, "Side: %s\n", side.Name())
+		_ = averageW(w, zo, h, WsZ[side])
+		fmt.Fprintf(w, "\n")
 	}
 
 	w.Flush()
 	return
 }
 
-func averageW(z0, z1 float64, w func(z float64) float64) (Wa, Z float64) {
+func averageW(out io.Writer, z0, z1 float64, w func(z float64) float64) (wa float64) {
 	// center mass of shape:
 	// Z := sum(mi*zi)/sum(mi)
 	zh := SplitHeigth(z0, z1)
-	var up, down float64
+
+	fmt.Fprintf(out, `
+     Ws on top    |----------->             |--------->
+                  |          /              |         |
+                  |--------->    Ws average |--------->
+                  |        /                |         |
+     Ws on zero   |------->                 |--------->
+                --------------- ground ------------------
+
+`)
+	ws := make([]float64, len(zh))
 	for i := range zh {
-		if i == 0 {
-			continue
-		}
-		z0, z1 := zh[i-1], zh[i]
-		w0, w1 := w(z0), w(z1)
-		dz := z1 - z0
-		mi := (w0 + w1) / 2.0 * dz                                  // area of trapezoid
-		zi := (w0*(z0+1.0/3.0*dz) + w1*(z0+2.0/3.0*dz)) / (w0 + w1) // center of trapezoid
-		up += mi * zi
-		down += mi
+		ws[i] = w(zh[i])
 	}
-	return down / (z1 - z0), up / down
+	fmt.Fprintf(out, "%3s | %12s | %12s |\n", "ID", "H,m", "W")
+	for i := range zh {
+		fmt.Fprintf(out, "%03d | %12.1f | %12.1f |\n", i+1, zh[i], ws[i])
+	}
+	summ := 0.0
+	for i := 1; i < len(zh); i++ {
+		summ += (zh[i] - zh[i-1]) * (ws[i] + ws[i-1]) / 2.0
+	}
+	wa = summ / (zh[len(zh)-1] - zh[0])
+	fmt.Fprintf(out, "Summary            : %12.1f\n", summ)
+	fmt.Fprintf(out, "Average value of W : %12.1f\n", wa)
+	fmt.Fprintf(out, "\n")
+	return
+
+	// TODO
+	/*
+		var up, down float64
+		for i := range zh {
+			if i == 0 {
+				continue
+			}
+			z0, z1 := zh[i-1], zh[i]
+			w0, w1 := w(z0), w(z1)
+			dz := z1 - z0
+			mi := (w0 + w1) / 2.0 * dz                                  // area of trapezoid
+			zi := (w0*(z0+1.0/3.0*dz) + w1*(z0+2.0/3.0*dz)) / (w0 + w1) // center of trapezoid
+			up += mi * zi
+			down += mi
+		}
+		// среднее значение при сохранении момента
+		return down / (z1 - z0), up / down
+	*/
 }

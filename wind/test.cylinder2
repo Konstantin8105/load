@@ -67,5 +67,11 @@ The spatial correlation coefficient of pressure pulsations:
      Ws on zero   |------->                 |--------->
                 --------------- ground ------------------
 
-| side   | width  | Center of Ws | Ws average |
-|  front |  5.000 |  7.725       |   +644.1   |
+ ID |          H,m |            W |
+001 |          2.8 |        564.0 |
+002 |          5.0 |        564.0 |
+003 |         10.0 |        718.3 |
+004 |         12.1 |        752.1 |
+Summary            :       5990.6
+Average value of W :        644.1
+
