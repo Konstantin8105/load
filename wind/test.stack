@@ -19,7 +19,7 @@ Sketch:
 Wind zone: A
 Wind region:  II with value = 300.0 Pa
 Wind log decrement: δ = 0.15
-Natural frequency : [0.5 1.5]
+Natural frequency : [0.500 1.500]
 
 Dimensions:
 b   4.710 m

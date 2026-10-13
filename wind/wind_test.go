@@ -50,9 +50,9 @@ func ExampleFactorXi() {
 	for Tg := 0.0; Tg <= 0.3; Tg = Tg + 0.05 {
 		fmt.Fprintf(os.Stdout, "%.5f %.3f %.3f %.3f\n",
 			Tg,
-			factorXi(LogDecriment15, Tg),
-			factorXi(LogDecriment22, Tg),
-			factorXi(LogDecriment30, Tg),
+			FactorXi(LogDecriment15, Tg),
+			FactorXi(LogDecriment22, Tg),
+			FactorXi(LogDecriment30, Tg),
 		)
 	}
 	// Output:

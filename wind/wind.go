@@ -310,7 +310,7 @@ func FactorXiHz(wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float6
 		ξ = 0.0 // reset value
 		for _, hz := range hzs {
 			Tgi := math.Sqrt(Wo*Kz*γf) / (940.0 * hz) // see formula 11.8a
-			ξi := factorXi(ld, Tgi)
+			ξi := FactorXi(ld, Tgi)
 			ξ += pow.E2(ξi)
 		}
 		ξ = math.Sqrt(ξ)
@@ -321,8 +321,8 @@ func FactorXiHz(wr Region, zone Zone, ld LogDecriment, isBuilding bool, z float6
 	return
 }
 
-// factorXi - коэффициент динамичности by pic 11.1
-func factorXi(ld LogDecriment, Tg float64) (ξ float64) {
+// FactorXi - коэффициент динамичности by pic 11.1
+func FactorXi(ld LogDecriment, Tg float64) (ξ float64) {
 	defer func() {
 		// предполагается, что коэффициент динамичности не может быть менее 1.0
 		if ξ < 1.0 {

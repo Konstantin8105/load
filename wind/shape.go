@@ -63,7 +63,7 @@ func Frame(out io.Writer, zone Zone, wr Region, ld LogDecriment, h float64, hzs 
 	fmt.Fprintf(w, "%s\n", zone.String())
 	fmt.Fprintf(w, "%s\n", wr.String())
 	fmt.Fprintf(w, "%s\n", ld.String())
-	fmt.Fprintf(w, "Natural frequency : %v\n", hzs)
+	fmt.Fprintf(w, "Natural frequency : %.3f\n", hzs)
 	fmt.Fprintf(w, "\n")
 
 	fmt.Fprintf(w, "Dimensions:\n")
@@ -181,7 +181,7 @@ func Cylinder(out io.Writer, zone Zone, wr Region, ld LogDecriment, Δ, d, h flo
 	fmt.Fprintf(w, "%s\n", zone.String())
 	fmt.Fprintf(w, "%s\n", wr.String())
 	fmt.Fprintf(w, "%s\n", ld.String())
-	fmt.Fprintf(w, "Natural frequency : %v\n", hzs)
+	fmt.Fprintf(w, "Natural frequency : %.3f\n", hzs)
 	fmt.Fprintf(w, "\n")
 
 	b := d
@@ -429,7 +429,7 @@ func Rectangle(out io.Writer, zone Zone, wr Region, ld LogDecriment, b, d, h flo
 	fmt.Fprintf(w, "%s\n", zone.String())
 	fmt.Fprintf(w, "%s\n", wr.String())
 	fmt.Fprintf(w, "%s\n", ld.String())
-	fmt.Fprintf(w, "Natural frequency : %v\n", hzs)
+	fmt.Fprintf(w, "Natural frequency : %.3f\n", hzs)
 	fmt.Fprintf(w, "\n")
 	fmt.Fprintf(w, "Dimensions:\n")
 	fmt.Fprintf(w, "\tb\t%6.3f m\n", b)
