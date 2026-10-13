@@ -97,17 +97,21 @@ func Frame(out io.Writer, zone Zone, wr Region, ld LogDecriment, h float64, hzs 
 	zo := 0.0
 	zs := SplitHeigth(zo, h)
 
-	separator := func() {
+	separator := func(w io.Writer) {
 		fmt.Fprintf(w, "\t|")
 	}
 	fmt.Fprintf(w, "\t|\tz\tze\tKz\tζ\tξ\t|\tWm\tWp\tWsum\t|\n")
 	fmt.Fprintf(w, "\t|\tm\tm\t\t\t\t|\tPa\tPa\tPa\t|\n")
 	fmt.Fprintf(w, "\t|\t\t\t\t\t\t|\t\t\t\t|\n")
-	WsZ = func(z float64) float64 {
+	section := func(w io.Writer, z float64) float64 {
+		if w == nil {
+			var buf bytes.Buffer
+			w = &buf
+		}
 		if z < zo || h < z {
 			panic(fmt.Errorf("not acceptable: z(%.2e) < zo(%.2e) || h(%.2e) < z(%.2e) ", z, zo, h, z))
 		}
-		separator()
+		separator(w)
 		// Wo
 		Wo := float64(wr)
 		fmt.Fprintf(w, "\t%6.3f", z)
@@ -126,7 +130,7 @@ func Frame(out io.Writer, zone Zone, wr Region, ld LogDecriment, h float64, hzs 
 		// Xi
 		ξ := FactorXiHz(nil, wr, zone, ld, true, h, hzs)
 		fmt.Fprintf(w, "\t%6.3f", ξ)
-		separator()
+		separator(w)
 		// Wm
 		Wm := Wo * Kz * cx
 		fmt.Fprintf(w, "\t%6.1f", Wm)
@@ -136,14 +140,31 @@ func Frame(out io.Writer, zone Zone, wr Region, ld LogDecriment, h float64, hzs 
 		// Wsum
 		Wsum := Wm + Wp
 		fmt.Fprintf(w, "\t%6.1f", Wsum)
-		separator()
+		separator(w)
 
 		fmt.Fprintf(w, "\n")
 		return Wsum
 	}
-	for _, z := range zs {
-		_ = WsZ(z)
+	WsZ = func(z float64) float64 {
+		return section(nil, z)
 	}
+	for _, z := range zs {
+		_ = section(w, z)
+	}
+
+	fmt.Fprintf(w, `
+     Ws on top    |----------->             |--------->
+                  |          /              |         |
+                  |--------->    Ws average |--------->
+                  |        /                |         |
+     Ws on zero   |------->                 |--------->
+                --------------- ground ------------------
+`)
+	fmt.Fprintf(w, "\n")
+	fmt.Fprintf(w, "|\tside\t|\tCenter of Ws\t|\tWs average\t|\n")
+	Wa, Z := averageW(zo, h, WsZ)
+	fmt.Fprintf(w, "|\t%6s\t|\t%6.3f\t|\t%+8.1f\t|\n",
+		"front", Z, Wa)
 	w.Flush()
 	return
 }

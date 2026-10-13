@@ -48,6 +48,12 @@ func Test(t *testing.T) {
 		}
 		compare.Test(t, "test.cylinder", buf.Bytes())
 	})
+	t.Run("cylinder2", func(t *testing.T) {
+		var buf bytes.Buffer
+		_ = Cylinder(&buf, ZoneA, RegionV, LogDecriment15, 0.200, 5.000, 12.100, 2.800,
+			[]float64{4.88})
+		compare.Test(t, "test.cylinder2", buf.Bytes())
+	})
 	t.Run("stack", func(t *testing.T) {
 		var buf bytes.Buffer
 		Wsum := Cylinder(&buf, ZoneA, RegionII, LogDecriment15, 0.200, 4.710, 100.100, 2.800,
