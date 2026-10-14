@@ -86,9 +86,10 @@ Ws on zero   |------->                 |--------->
 003 |         10.0 |      -1907.8 |
 004 |         12.1 |      -1907.8 |
 
-Summary            :     -16016.5 (integral values by height)
-Average value of W :      -1722.2 (equal value by height)
-Maximal value of W :      -1907.8 (maximal value)
+Summary            :     -16016.5           (integral values by height)
+Average value of W :      -1722.2           (equal value by height)
+Maximal value of W :      -1907.8           (maximal value)
+Linear values of W :      -1540.6...-1907.8 (zero and top value)
 
 
 Side: B
@@ -107,9 +108,10 @@ Ws on zero   |------->                 |--------->
 003 |         10.0 |      -1526.2 |
 004 |         12.1 |      -1526.2 |
 
-Summary            :     -12813.2 (integral values by height)
-Average value of W :      -1377.8 (equal value by height)
-Maximal value of W :      -1526.2 (maximal value)
+Summary            :     -12813.2           (integral values by height)
+Average value of W :      -1377.8           (equal value by height)
+Maximal value of W :      -1526.2           (maximal value)
+Linear values of W :      -1232.5...-1526.2 (zero and top value)
 
 
 Side: C
@@ -128,9 +130,10 @@ Ws on zero   |------->                 |--------->
 003 |         10.0 |       -953.9 |
 004 |         12.1 |       -953.9 |
 
-Summary            :      -8008.2 (integral values by height)
-Average value of W :       -861.1 (equal value by height)
-Maximal value of W :       -953.9 (maximal value)
+Summary            :      -8008.2          (integral values by height)
+Average value of W :       -861.1          (equal value by height)
+Maximal value of W :       -953.9          (maximal value)
+Linear values of W :       -770.3...-953.9 (zero and top value)
 
 
 Side: D
@@ -149,9 +152,10 @@ Ws on zero   |------->                 |--------->
 003 |         10.0 |       1395.3 |
 004 |         12.1 |       1395.3 |
 
-Summary            :      12976.4 (integral values by height)
-Average value of W :       1395.3 (equal value by height)
-Maximal value of W :       1395.3 (maximal value)
+Summary            :      12976.4          (integral values by height)
+Average value of W :       1395.3          (equal value by height)
+Maximal value of W :       1395.3          (maximal value)
+Linear values of W :       1395.3...1395.3 (zero and top value)
 
 
 Side: E
@@ -170,8 +174,9 @@ Ws on zero   |------->                 |--------->
 003 |         10.0 |       -872.1 |
 004 |         12.1 |       -872.1 |
 
-Summary            :      -8110.2 (integral values by height)
-Average value of W :       -872.1 (equal value by height)
-Maximal value of W :       -872.1 (maximal value)
+Summary            :      -8110.2          (integral values by height)
+Average value of W :       -872.1          (equal value by height)
+Maximal value of W :       -872.1          (maximal value)
+Linear values of W :       -872.1...-872.1 (zero and top value)
 
 

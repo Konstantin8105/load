@@ -611,10 +611,22 @@ Ws on zero   |------->                 |--------->
 			wmax = w
 		}
 	}
+
+	wzero, wtop := ws[0], ws[len(zh)-1]
+	{
+		dh := 0.1 * (zh[len(zh)-1] - zh[len(zh)-2])
+		dw := w(zh[len(zh)-1]-dh) - w(zh[len(zh)-1])
+		prop := (zh[len(zh)-1] - zh[0]) / dh
+		if w := wtop + prop*dw; wzero < w {
+			wzero = w
+		}
+	}
+
 	fmt.Fprintf(out, "\n")
 	fmt.Fprintf(out, "Summary            : %12.1f\t(integral values by height)\n", summ)
 	fmt.Fprintf(out, "Average value of W : %12.1f\t(equal value by height)\n", wa)
 	fmt.Fprintf(out, "Maximal value of W : %12.1f\t(maximal value)\n", wmax)
+	fmt.Fprintf(out, "Linear values of W : %12.1f...%.1f\t(zero and top value)\n", wzero, wtop)
 	fmt.Fprintf(out, "\n")
 	return
 }

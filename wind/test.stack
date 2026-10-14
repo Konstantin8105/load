@@ -121,9 +121,10 @@ Ws on zero   |------->                 |--------->
 021 |        100.0 |       1116.9 |
 022 |        100.1 |       1117.1 |
 
-Summary            :      90209.9 (integral values by height)
-Average value of W :        927.1 (equal value by height)
-Maximal value of W :       1117.1 (maximal value)
+Summary            :      90209.9          (integral values by height)
+Average value of W :        927.1          (equal value by height)
+Maximal value of W :       1117.1          (maximal value)
+Linear values of W :        872.2...1117.1 (zero and top value)
 
 Wsum[z =  2.800 m] =  540.7 Pa
 Wsum[z =  5.000 m] =  540.7 Pa

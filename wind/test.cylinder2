@@ -74,7 +74,8 @@ Ws on zero   |------->                 |--------->
 003 |         10.0 |        718.3 |
 004 |         12.1 |        752.1 |
 
-Summary            :       5990.6 (integral values by height)
-Average value of W :        644.1 (equal value by height)
-Maximal value of W :        752.1 (maximal value)
+Summary            :       5990.6         (integral values by height)
+Average value of W :        644.1         (equal value by height)
+Maximal value of W :        752.1         (maximal value)
+Linear values of W :        611.5...752.1 (zero and top value)
 
