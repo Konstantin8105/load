@@ -71,92 +71,107 @@ h  12.100 m
 | E    10.000 12.100  1.059  0.739  3.046 | -0.5 20.000 12.100  0.776 -317.7 -554.4  -872.1  |
 | E    12.100 12.100  1.059  0.739  3.046 | -0.5 20.000 12.100  0.776 -317.7 -554.4  -872.1  |
 Side: A
+Calculate average values.
 
-     Ws on top    |----------->             |--------->
-                  |          /              |         |
-                  |--------->    Ws average |--------->
-                  |        /                |         |
-     Ws on zero   |------->                 |--------->
-                --------------- ground ------------------
+Ws on top    |----------->             |--------->
+             |          /              |         |
+             |--------->    Ws average |--------->
+             |        /                |         |
+Ws on zero   |------->                 |--------->
+     --------------- ground ------------------
 
  ID |          H,m |            W |
 001 |          2.8 |      -1540.6 |
 002 |          5.0 |      -1540.6 |
 003 |         10.0 |      -1907.8 |
 004 |         12.1 |      -1907.8 |
-Summary            :     -16016.5
-Average value of W :      -1722.2 (Equal value by height)
+
+Summary            :     -16016.5 (integral values by height)
+Average value of W :      -1722.2 (equal value by height)
+Maximal value of W :      -1907.8 (maximal value)
 
 
 Side: B
+Calculate average values.
 
-     Ws on top    |----------->             |--------->
-                  |          /              |         |
-                  |--------->    Ws average |--------->
-                  |        /                |         |
-     Ws on zero   |------->                 |--------->
-                --------------- ground ------------------
+Ws on top    |----------->             |--------->
+             |          /              |         |
+             |--------->    Ws average |--------->
+             |        /                |         |
+Ws on zero   |------->                 |--------->
+     --------------- ground ------------------
 
  ID |          H,m |            W |
 001 |          2.8 |      -1232.5 |
 002 |          5.0 |      -1232.5 |
 003 |         10.0 |      -1526.2 |
 004 |         12.1 |      -1526.2 |
-Summary            :     -12813.2
-Average value of W :      -1377.8 (Equal value by height)
+
+Summary            :     -12813.2 (integral values by height)
+Average value of W :      -1377.8 (equal value by height)
+Maximal value of W :      -1526.2 (maximal value)
 
 
 Side: C
+Calculate average values.
 
-     Ws on top    |----------->             |--------->
-                  |          /              |         |
-                  |--------->    Ws average |--------->
-                  |        /                |         |
-     Ws on zero   |------->                 |--------->
-                --------------- ground ------------------
+Ws on top    |----------->             |--------->
+             |          /              |         |
+             |--------->    Ws average |--------->
+             |        /                |         |
+Ws on zero   |------->                 |--------->
+     --------------- ground ------------------
 
  ID |          H,m |            W |
 001 |          2.8 |       -770.3 |
 002 |          5.0 |       -770.3 |
 003 |         10.0 |       -953.9 |
 004 |         12.1 |       -953.9 |
-Summary            :      -8008.2
-Average value of W :       -861.1 (Equal value by height)
+
+Summary            :      -8008.2 (integral values by height)
+Average value of W :       -861.1 (equal value by height)
+Maximal value of W :       -953.9 (maximal value)
 
 
 Side: D
+Calculate average values.
 
-     Ws on top    |----------->             |--------->
-                  |          /              |         |
-                  |--------->    Ws average |--------->
-                  |        /                |         |
-     Ws on zero   |------->                 |--------->
-                --------------- ground ------------------
+Ws on top    |----------->             |--------->
+             |          /              |         |
+             |--------->    Ws average |--------->
+             |        /                |         |
+Ws on zero   |------->                 |--------->
+     --------------- ground ------------------
 
  ID |          H,m |            W |
 001 |          2.8 |       1395.3 |
 002 |          5.0 |       1395.3 |
 003 |         10.0 |       1395.3 |
 004 |         12.1 |       1395.3 |
-Summary            :      12976.4
-Average value of W :       1395.3 (Equal value by height)
+
+Summary            :      12976.4 (integral values by height)
+Average value of W :       1395.3 (equal value by height)
+Maximal value of W :       1395.3 (maximal value)
 
 
 Side: E
+Calculate average values.
 
-     Ws on top    |----------->             |--------->
-                  |          /              |         |
-                  |--------->    Ws average |--------->
-                  |        /                |         |
-     Ws on zero   |------->                 |--------->
-                --------------- ground ------------------
+Ws on top    |----------->             |--------->
+             |          /              |         |
+             |--------->    Ws average |--------->
+             |        /                |         |
+Ws on zero   |------->                 |--------->
+     --------------- ground ------------------
 
  ID |          H,m |            W |
 001 |          2.8 |       -872.1 |
 002 |          5.0 |       -872.1 |
 003 |         10.0 |       -872.1 |
 004 |         12.1 |       -872.1 |
-Summary            :      -8110.2
-Average value of W :       -872.1 (Equal value by height)
+
+Summary            :      -8110.2 (integral values by height)
+Average value of W :       -872.1 (equal value by height)
+Maximal value of W :       -872.1 (maximal value)
 
 

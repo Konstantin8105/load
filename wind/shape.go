@@ -581,13 +581,14 @@ func averageW(out io.Writer, z0, z1 float64, w func(z float64) float64) (wa floa
 	// Z := sum(mi*zi)/sum(mi)
 	zh := SplitHeigth(z0, z1)
 
-	fmt.Fprintf(out, `
-     Ws on top    |----------->             |--------->
-                  |          /              |         |
-                  |--------->    Ws average |--------->
-                  |        /                |         |
-     Ws on zero   |------->                 |--------->
-                --------------- ground ------------------
+	fmt.Fprintf(out, `Calculate average values.
+
+Ws on top    |----------->             |--------->
+             |          /              |         |
+             |--------->    Ws average |--------->
+             |        /                |         |
+Ws on zero   |------->                 |--------->
+     --------------- ground ------------------
 
 `)
 	ws := make([]float64, len(zh))
@@ -603,27 +604,17 @@ func averageW(out io.Writer, z0, z1 float64, w func(z float64) float64) (wa floa
 		summ += (zh[i] - zh[i-1]) * (ws[i] + ws[i-1]) / 2.0
 	}
 	wa = summ / (zh[len(zh)-1] - zh[0])
-	fmt.Fprintf(out, "Summary            : %12.1f\n", summ)
-	fmt.Fprintf(out, "Average value of W : %12.1f\t(Equal value by height)\n", wa)
+
+	wmax := ws[0]
+	for _, w := range ws {
+		if math.Abs(wmax) < math.Abs(w) {
+			wmax = w
+		}
+	}
+	fmt.Fprintf(out, "\n")
+	fmt.Fprintf(out, "Summary            : %12.1f\t(integral values by height)\n", summ)
+	fmt.Fprintf(out, "Average value of W : %12.1f\t(equal value by height)\n", wa)
+	fmt.Fprintf(out, "Maximal value of W : %12.1f\t(maximal value)\n", wmax)
 	fmt.Fprintf(out, "\n")
 	return
-
-	// TODO
-	/*
-		var up, down float64
-		for i := range zh {
-			if i == 0 {
-				continue
-			}
-			z0, z1 := zh[i-1], zh[i]
-			w0, w1 := w(z0), w(z1)
-			dz := z1 - z0
-			mi := (w0 + w1) / 2.0 * dz                                  // area of trapezoid
-			zi := (w0*(z0+1.0/3.0*dz) + w1*(z0+2.0/3.0*dz)) / (w0 + w1) // center of trapezoid
-			up += mi * zi
-			down += mi
-		}
-		// среднее значение при сохранении момента
-		return down / (z1 - z0), up / down
-	*/
 }

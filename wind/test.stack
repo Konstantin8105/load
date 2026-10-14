@@ -88,13 +88,14 @@ The spatial correlation coefficient of pressure pulsations:
 | 95.000  95.000   1.965  0.542  2.576 |  553.7  550.3 1104.0 |
 | 100.000 100.000  1.995  0.538  2.576 |  562.3  554.5 1116.9 |
 | 100.100 100.100  1.996  0.538  2.576 |  562.5  554.6 1117.1 |
+Calculate average values.
 
-     Ws on top    |----------->             |--------->
-                  |          /              |         |
-                  |--------->    Ws average |--------->
-                  |        /                |         |
-     Ws on zero   |------->                 |--------->
-                --------------- ground ------------------
+Ws on top    |----------->             |--------->
+             |          /              |         |
+             |--------->    Ws average |--------->
+             |        /                |         |
+Ws on zero   |------->                 |--------->
+     --------------- ground ------------------
 
  ID |          H,m |            W |
 001 |          2.8 |        540.7 |
@@ -119,8 +120,10 @@ The spatial correlation coefficient of pressure pulsations:
 020 |         95.0 |       1104.0 |
 021 |        100.0 |       1116.9 |
 022 |        100.1 |       1117.1 |
-Summary            :      90209.9
-Average value of W :        927.1 (Equal value by height)
+
+Summary            :      90209.9 (integral values by height)
+Average value of W :        927.1 (equal value by height)
+Maximal value of W :       1117.1 (maximal value)
 
 Wsum[z =  2.800 m] =  540.7 Pa
 Wsum[z =  5.000 m] =  540.7 Pa
